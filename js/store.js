@@ -67,11 +67,11 @@
       }
 
       // Validar correo institucional BUAP
-      const isBuapEmail = cleanEmail.endsWith('@alumno.buap.mx') || cleanEmail.endsWith('@buap.mx') || cleanEmail.endsWith('@correo.buap.mx');
+      const isBuapEmail = cleanEmail.endsWith('@alm.buap.mx') || cleanEmail.endsWith('@buap.mx') || cleanEmail.endsWith('@correo.buap.mx');
       if (!isBuapEmail) {
         return { 
           success: false, 
-          error: 'Por seguridad del campus, debes registrarte con tu correo institucional (@alumno.buap.mx o @buap.mx).' 
+          error: 'Por seguridad del campus, debes registrarte con tu correo institucional (@alm.buap.mx o @buap.mx).' 
         };
       }
 

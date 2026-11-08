@@ -6,7 +6,7 @@
 ### ¿Por qué este proyecto ya no es solo un archivo HTML suelto?
 Hemos transformado el proyecto en una **plataforma web completa** con:
 1. **Un Servidor Web dedicado (`server.js` y `start-server.bat`):** Ya corre como un servidor HTTP real en el puerto 3000, permitiendo acceso tanto en tu computadora (`http://localhost:3000`) como en celulares conectados a la misma red Wi-Fi universitaria o de tu casa (`http://192.168.X.X:3000`).
-2. **Un Sistema de Autenticación y Almacenamiento Seguro (`js/store.js`):** Valida cuentas de estudiantes con correo institucional `@alumno.buap.mx`, contraseñas cifradas y sesiones privadas.
+2. **Un Sistema de Autenticación y Almacenamiento Seguro (`js/store.js`):** Valida cuentas de estudiantes con correo institucional `@alm.buap.mx`, contraseñas cifradas y sesiones privadas.
 3. **Un Portal Apartado y Exclusivo de Vendedores (`portal-vendedor.html`):** Los vendedores tienen su propio entorno protegido donde solo ellos pueden ver y administrar sus pedidos, inventario, ventas y datos sensibles.
 4. **Cero Datos de Prueba:** El catálogo inicia en estado de producción real. Los productos que se muestran son exclusivamente los creados por vendedores registrados.
 5. **Configuración de Despliegue en la Nube (`netlify.toml`):** Listo para publicarse en internet con un solo clic.

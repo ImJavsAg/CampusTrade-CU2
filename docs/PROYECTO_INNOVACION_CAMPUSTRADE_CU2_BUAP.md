@@ -147,7 +147,7 @@ La deserción escolar en facultades de ingeniería en México tiene un component
 ## 7. Elementos Éticos y Regulaciones
 
 ### A. Elementos Éticos
-1. **Privacidad y No Comercialización:** La plataforma asume el compromiso ético absoluto de no recopilar datos biométricos, no comercializar correos institucionales `@alumno.buap.mx` ni rastrear ubicaciones en segundo plano cuando la app está cerrada.
+1. **Privacidad y No Comercialización:** La plataforma asume el compromiso ético absoluto de no recopilar datos biométricos, no comercializar correos institucionales `@alumno.buap.mx o @alm.buap.mx` ni rastrear ubicaciones en segundo plano cuando la app está cerrada.
 2. **Transparencia y Moderación sin Toxicidad:** El sistema de calificaciones y comentarios cuenta con filtros contra el acoso, calumnias o discriminación de género/facultad, fomentando reseñas constructivas sobre la puntualidad y calidad del producto.
 3. **Equidad y Oportunidad:** Ningún vendedor recibe favoritismos injustos; el algoritmo de descubrimiento prioriza la cercanía geográfica y la disponibilidad inmediata para que todos los emprendedores tengan visibilidad equitativa.
 
