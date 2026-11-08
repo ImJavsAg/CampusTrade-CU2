@@ -1,0 +1,18 @@
+{
+  "name": "CampusTrade CU2 - BUAP",
+  "short_name": "CampusTrade",
+  "description": "Plataforma de Microemprendimiento y Entregas Seguras en el Campus BUAP CU2",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#002B49",
+  "theme_color": "#002B49",
+  "icons": [
+    {
+      "src": "./assets/logo.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

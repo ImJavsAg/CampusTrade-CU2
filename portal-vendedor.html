@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Portal de Emprendedores CU2 | CampusTrade BUAP</title>
+  
+  <link rel="icon" type="image/svg+xml" href="./assets/logo.svg">
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#002B49">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            buap: {
+              900: '#001B2E',
+              800: '#002B49',
+              700: '#003B5C',
+              gold: '#F59E0B'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts & Font Awesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-amber-500 selection:text-slate-950 pb-12">
+
+  <!-- TOP BAR -->
+  <header class="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <div class="flex items-center space-x-3">
+          <a href="./index.html" class="flex items-center space-x-2">
+            <div class="w-9 h-9 rounded-xl bg-amber-500 flex items-center justify-center text-slate-950 font-bold shadow-lg shadow-amber-500/20">
+              <i class="fas fa-paw"></i>
+            </div>
+            <div>
+              <span class="font-extrabold text-sm text-white tracking-tight">Portal LoboEmprende</span>
+              <span class="text-[10px] text-amber-400 block font-medium">Gestión Exclusiva para Vendedores CU2</span>
+            </div>
+          </a>
+        </div>
+
+        <div class="flex items-center space-x-3">
+          <a href="./index.html" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 border border-slate-700">
+            <i class="fas fa-store text-amber-400"></i> <span class="hidden sm:inline">Ir a Tienda Pública</span>
+          </a>
+
+          <div id="nav-user-controls" class="hidden flex items-center space-x-2">
+            <button id="btn-logout" class="bg-red-950/80 hover:bg-red-900 border border-red-500/30 text-red-300 text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5">
+              <i class="fas fa-sign-out-alt"></i> <span class="hidden sm:inline">Cerrar Sesión</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENEDOR PRINCIPAL -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- ============================================== -->
+    <!-- ESTADO 1: PANTALLA DE ACCESO (LOGIN / REGISTRO)-->
+    <!-- ============================================== -->
+    <section id="auth-section" class="max-w-md mx-auto my-6">
+      
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 rounded-3xl bg-gradient-to-br from-amber-500 to-amber-600 mx-auto flex items-center justify-center text-slate-950 text-2xl shadow-xl shadow-amber-500/20 mb-3">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <h1 class="text-2xl font-extrabold text-white">Acceso para Emprendedores</h1>
+        <p class="text-xs text-slate-400 mt-1">Ingresa o regístrate con tu correo institucional BUAP para gestionar tus ventas en el campus CU2.</p>
+      </div>
+
+      <!-- Selector de Pestañas: Login vs Registro -->
+      <div class="glass-panel p-1 rounded-2xl flex mb-5 border border-slate-800">
+        <button id="tab-btn-login" class="flex-1 py-2 rounded-xl text-xs font-bold transition text-slate-950 bg-amber-500 shadow">
+          Iniciar Sesión
+        </button>
+        <button id="tab-btn-register" class="flex-1 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-white">
+          Registrar Emprendimiento
+        </button>
+      </div>
+
+      <!-- Alerta de Error/Éxito -->
+      <div id="auth-alert" class="hidden p-3.5 rounded-xl text-xs font-semibold mb-4 border"></div>
+
+      <!-- FORMULARIO 1: INICIAR SESIÓN -->
+      <div id="form-login-container" class="glass-panel p-6 rounded-3xl border border-slate-800 shadow-2xl">
+        <form id="form-login" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Correo Institucional BUAP *</label>
+            <div class="relative">
+              <i class="fas fa-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+              <input type="email" id="login-email" placeholder="ejemplo@alumno.buap.mx" required class="w-full bg-slate-900 border border-slate-700/80 rounded-xl pl-9 pr-3 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 transition">
+            </div>
+            <span class="text-[10px] text-slate-500 mt-1 block">Dominio permitido: @alumno.buap.mx o @buap.mx</span>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Contraseña *</label>
+            <div class="relative">
+              <i class="fas fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+              <input type="password" id="login-password" placeholder="Tu contraseña de acceso" required class="w-full bg-slate-900 border border-slate-700/80 rounded-xl pl-9 pr-3 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 transition">
+            </div>
+          </div>
+
+          <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold py-3 rounded-xl text-xs transition shadow-lg shadow-amber-500/20 active:scale-95">
+            Entrar a mi Panel de Ventas <i class="fas fa-arrow-right ml-1"></i>
+          </button>
+        </form>
+      </div>
+
+      <!-- FORMULARIO 2: REGISTRO DE VENDEDOR -->
+      <div id="form-register-container" class="hidden glass-panel p-6 rounded-3xl border border-slate-800 shadow-2xl space-y-4">
+        <div class="p-3 bg-sky-950/60 border border-sky-500/30 rounded-xl text-[11px] text-sky-200">
+          <i class="fas fa-user-check text-sky-400 mr-1"></i>
+          <strong>Verificación Comunitaria:</strong> Este registro valida que seas estudiante activo en CU2 para proteger a la comunidad y tu emprendimiento.
+        </div>
+
+        <form id="form-register" class="space-y-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre Completo *</label>
+            <input type="text" id="reg-name" placeholder="Ej. Javier Morales Romero" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100">
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Matrícula BUAP *</label>
+              <input type="text" id="reg-studentid" placeholder="202245123" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">WhatsApp de Ventas *</label>
+              <input type="tel" id="reg-whatsapp" placeholder="2211748806" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Correo Institucional BUAP *</label>
+            <input type="email" id="reg-email" placeholder="usuario@alumno.buap.mx" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Contraseña de Acceso (mínimo 6 car.) *</label>
+            <input type="password" id="reg-password" placeholder="••••••••" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100">
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Facultad / Carrera *</label>
+              <select id="reg-faculty" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100">
+                <option value="Ing. en Ciencias de la Computación (ICC)">ICC (Computación)</option>
+                <option value="Tecnologías de la Información (TI)">TI / Software</option>
+                <option value="Facultad de Ciencias de la Electrónica">Electrónica / Mecatrónica</option>
+                <option value="Facultad de Ciencias Químicas">Ciencias Químicas</option>
+                <option value="Complejo de Ciencias de la Salud">Ciencias de la Salud</option>
+                <option value="Facultad de Ingeniería">Ingeniería Civil / Industrial</option>
+                <option value="Otra Carrera en CU2">Otra Carrera en CU2</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Edificio Base en CU2 *</label>
+              <select id="reg-building" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100">
+                <option value="ema3">EMA 3 - Cómputo 1</option>
+                <option value="ema4">EMA 4 - Cómputo 2</option>
+                <option value="stu">Nodo de Transferencia STU</option>
+                <option value="ccs1">CCS 1 - Complejo Salud</option>
+                <option value="fcq1">FCQ 1 - Ciencias Químicas</option>
+                <option value="fce1">FCE 1 - Electrónica</option>
+                <option value="ema1_2">EMA 1 & 2 - Norte</option>
+                <option value="ema5_8">EMA 5 a 8 - Multiaulas</option>
+                <option value="ing1">ING 1 - Ingenierías</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-[11px] text-amber-200 space-y-1">
+            <div class="flex items-start gap-1.5">
+              <input type="checkbox" id="reg-ethics-check" required class="mt-0.5 rounded border-slate-700 text-amber-500 focus:ring-0">
+              <label for="reg-ethics-check">
+                Acepto el <strong>Reglamento Ético BUAP</strong>: Me comprometo a NO vender tareas escolares, ni alcohol ni sustancias prohibidas, y a cumplir las normas de higiene.
+              </label>
+            </div>
+          </div>
+
+          <button type="submit" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold py-3 rounded-xl text-xs transition shadow-lg shadow-amber-500/20 active:scale-95">
+            Completar Registro de Emprendedor
+          </button>
+        </form>
+      </div>
+
+    </section>
+
+    <!-- ============================================== -->
+    <!-- ESTADO 2: PANEL PRIVADO DEL VENDEDOR AUTENTICADO-->
+    <!-- ============================================== -->
+    <section id="dashboard-section" class="hidden space-y-6">
+
+      <!-- Encabezado del Perfil -->
+      <div class="glass-panel p-6 rounded-3xl border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-xs font-black bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2.5 py-0.5 rounded-full uppercase">
+              Emprendedor Activo
+            </span>
+            <span class="text-xs text-emerald-400 font-bold flex items-center gap-1">
+              <i class="fas fa-check-circle"></i> Verificado BUAP
+            </span>
+          </div>
+
+          <h2 id="dash-seller-name" class="text-2xl font-black text-white">Nombre del Estudiante</h2>
+          
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400 mt-1">
+            <span id="dash-seller-faculty"><i class="fas fa-graduation-cap text-amber-400 mr-1"></i>ICC</span>
+            <span id="dash-seller-id"><i class="fas fa-id-card text-sky-400 mr-1"></i>Matrícula: 000000000</span>
+            <span id="dash-seller-email"><i class="fas fa-envelope text-indigo-400 mr-1"></i>correo@alumno.buap.mx</span>
+            <span id="dash-seller-phone"><i class="fab fa-whatsapp text-emerald-400 mr-1"></i>2211748806</span>
+          </div>
+        </div>
+
+        <button id="btn-open-add-product-modal" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-4 py-2.5 rounded-2xl text-xs transition shadow-lg shadow-amber-500/20 flex items-center gap-2 self-start md:self-auto active:scale-95">
+          <i class="fas fa-plus-circle text-sm"></i> Publicar Nuevo Producto
+        </button>
+      </div>
+
+      <!-- Barra de Estado en Vivo en CU2 -->
+      <div class="glass-card p-4 rounded-2xl border border-sky-500/30 bg-slate-900/90 space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider">Mi Ubicación de Entrega en Vivo (CU2)</h3>
+          </div>
+          <span class="text-[11px] text-slate-400">Esta información la ven los compradores en el catálogo</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 mb-1 uppercase">Edificio Actual</label>
+            <select id="dash-location-building" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200">
+              <option value="ema3">EMA 3 - Cómputo 1 (ICC)</option>
+              <option value="ema4">EMA 4 - Cómputo 2</option>
+              <option value="stu">Nodo de Transferencia STU</option>
+              <option value="ccs1">CCS 1 - Complejo Salud</option>
+              <option value="fcq1">FCQ 1 - Ciencias Químicas</option>
+              <option value="fce1">FCE 1 - Electrónica</option>
+              <option value="ema1_2">EMA 1 & 2 - Norte</option>
+              <option value="ema5_8">EMA 5 a 8 - Multiaulas</option>
+              <option value="ing1">ING 1 - Ingenierías</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 mb-1 uppercase">Punto Específico / Salón</label>
+            <input type="text" id="dash-location-text" placeholder="Ej. Explanada EMA 3 / Laboratorio L2" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200">
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 mb-1 uppercase">Disponible hasta</label>
+            <div class="flex gap-2">
+              <input type="text" id="dash-location-time" placeholder="Ej. 15:30 hrs" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200">
+              <button id="btn-save-location" class="bg-sky-600 hover:bg-sky-500 text-white font-bold px-3 py-2 rounded-xl text-xs transition active:scale-95 shrink-0">
+                Guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPIs Financieros Reales -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+        <div class="glass-card p-4 rounded-2xl border-l-4 border-amber-500">
+          <span class="text-[11px] text-slate-400 font-semibold block">Ventas Entregadas</span>
+          <h3 id="kpi-sales-amount" class="text-xl sm:text-2xl font-black text-amber-400 mt-1">$0.00</h3>
+          <span class="text-[10px] text-slate-500">Ingresos netos</span>
+        </div>
+
+        <div class="glass-card p-4 rounded-2xl border-l-4 border-sky-500">
+          <span class="text-[11px] text-slate-400 font-semibold block">Pedidos por Entregar</span>
+          <h3 id="kpi-pending-orders" class="text-xl sm:text-2xl font-black text-sky-400 mt-1">0</h3>
+          <span class="text-[10px] text-slate-500">Pendientes en campus</span>
+        </div>
+
+        <div class="glass-card p-4 rounded-2xl border-l-4 border-emerald-500">
+          <span class="text-[11px] text-slate-400 font-semibold block">Productos en Catálogo</span>
+          <h3 id="kpi-products-count" class="text-xl sm:text-2xl font-black text-emerald-400 mt-1">0</h3>
+          <span class="text-[10px] text-slate-500">Publicados por ti</span>
+        </div>
+
+        <div class="glass-card p-4 rounded-2xl border-l-4 border-purple-500">
+          <span class="text-[11px] text-slate-400 font-semibold block">Comisión Plataforma</span>
+          <h3 class="text-xl sm:text-2xl font-black text-purple-300 mt-1">$0.00</h3>
+          <span class="text-[10px] text-emerald-400 font-bold">100% Gratuito</span>
+        </div>
+      </div>
+
+      <!-- Pestañas de Gestión: Pedidos vs Catálogo -->
+      <div class="flex items-center space-x-2 border-b border-slate-800 pb-2">
+        <button id="dash-tab-orders" class="px-4 py-2 rounded-xl text-xs font-bold text-amber-400 bg-slate-800 border border-slate-700 transition flex items-center gap-1.5">
+          <i class="fas fa-clipboard-list"></i> Mis Pedidos Recibidos (<span id="dash-badge-orders">0</span>)
+        </button>
+        <button id="dash-tab-products" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5">
+          <i class="fas fa-boxes"></i> Mis Productos en Venta (<span id="dash-badge-products">0</span>)
+        </button>
+      </div>
+
+      <!-- CONTENEDOR 1: LISTADO DE PEDIDOS -->
+      <div id="dash-view-orders" class="space-y-4">
+        <div id="seller-orders-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Rellenado dinámicamente con órdenes reales de este vendedor -->
+        </div>
+
+        <div id="orders-empty-state" class="hidden text-center py-16 glass-card rounded-2xl">
+          <i class="fas fa-clipboard-check text-4xl text-slate-600 mb-2 block"></i>
+          <h3 class="font-bold text-base text-slate-200">Aún no tienes pedidos registrados</h3>
+          <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">Cuando los estudiantes en CU2 agreguen tus productos al carrito y confirmen, aparecerán aquí para que coordines la entrega.</p>
+        </div>
+      </div>
+
+      <!-- CONTENEDOR 2: LISTADO DE PRODUCTOS -->
+      <div id="dash-view-products" class="hidden space-y-4">
+        <div id="seller-products-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Rellenado dinámicamente con productos reales de este vendedor -->
+        </div>
+
+        <div id="products-empty-state" class="hidden text-center py-16 glass-card rounded-2xl">
+          <i class="fas fa-store-slash text-4xl text-slate-600 mb-2 block"></i>
+          <h3 class="font-bold text-base text-slate-200">Aún no tienes productos publicados</h3>
+          <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">Publica tus dulces, postres, desayunos o artículos de cómputo para comenzar a recibir ventas en CU2.</p>
+          <button id="btn-empty-add-product" class="mt-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition">
+            + Publicar mi Primer Producto
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ============================================== -->
+  <!-- MODAL: PUBLICAR NUEVO PRODUCTO                 -->
+  <!-- ============================================== -->
+  <div id="modal-add-product" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md">
+    <div class="glass-panel w-full max-w-lg rounded-3xl border border-slate-800 shadow-2xl p-6 max-h-[92vh] overflow-y-auto space-y-4 animate-in fade-in zoom-in-95 duration-200">
+      
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-sm font-bold">
+            <i class="fas fa-tag"></i>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-sm text-white">Publicar Producto en Catálogo CU2</h3>
+            <span class="text-[10px] text-slate-400">Solo visible mientras tengas inventario disponible</span>
+          </div>
+        </div>
+        <button id="btn-close-product-modal" class="text-slate-400 hover:text-white p-1">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <form id="form-modal-product" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre del Producto *</label>
+          <input type="text" id="prod-name" placeholder="Ej. Gomitas Enchiladas con Salsa Casera" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Categoría *</label>
+            <select id="prod-category" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100">
+              <option value="dulces">Gomitas y Botanas</option>
+              <option value="postres">Postres Caseros</option>
+              <option value="comida">Comida y Desayunos</option>
+              <option value="bebidas">Bebidas Frías & Café</option>
+              <option value="electronica">Cables & Tech</option>
+              <option value="papeleria">Papelería & Exámenes</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Precio Unitario ($ MXN) *</label>
+            <input type="number" id="prod-price" placeholder="25.00" step="0.5" min="1" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Presentación / Unidad *</label>
+            <input type="text" id="prod-unit" placeholder="Ej. Bolsita 150g / Vaso 8oz" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Cantidad / Stock Inicial *</label>
+            <input type="number" id="prod-stock" placeholder="10" min="1" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">URL de Foto (opcional)</label>
+          <input type="url" id="prod-image" placeholder="https://ejemplo.com/foto.jpg" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100">
+          <span class="text-[10px] text-slate-500">Si lo dejas en blanco, se asignará una foto representativa automáticamente.</span>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Descripción y Detalles</label>
+          <textarea id="prod-description" rows="2" placeholder="Ingredientes, si es recién elaborado o detalles de entrega..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Etiquetas (separadas por coma)</label>
+          <input type="text" id="prod-tags" placeholder="Gomitas, Chamoy, Casero" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100">
+        </div>
+
+        <div class="p-3 bg-red-950/40 border border-red-500/30 rounded-xl text-[11px] text-red-200">
+          <i class="fas fa-exclamation-triangle text-red-400 mr-1"></i>
+          <strong>Filtro Institucional:</strong> Prohibido ofrecer tareas escolares, exámenes, alcohol o sustancias ilícitas. Las publicaciones no autorizadas son eliminadas.
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+          <button type="button" id="btn-cancel-product-modal" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-4 py-2 rounded-xl text-xs transition">
+            Cancelar
+          </button>
+          <button type="submit" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-5 py-2 rounded-xl text-xs transition shadow-lg shadow-amber-500/20">
+            Publicar Ahora
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="./js/map-data.js"></script>
+  <script src="./js/initial-data.js"></script>
+  <script src="./js/store.js"></script>
+  <script src="./js/portal-vendedor.js"></script>
+</body>
+</html>

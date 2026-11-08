@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CampusTrade CU2 | Microemprendimiento Estudiantil BUAP</title>
+  
+  <link rel="icon" type="image/svg+xml" href="./assets/logo.svg">
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#002B49">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CampusTrade CU2">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            buap: {
+              900: '#001B2E',
+              800: '#002B49',
+              700: '#003B5C',
+              600: '#02507d',
+              gold: '#F59E0B',
+              lightgold: '#FBBF24'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts & Font Awesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-20 md:pb-8 selection:bg-amber-500 selection:text-slate-900 font-sans">
+
+  <!-- TOP NAVBAR -->
+  <header class="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Logo y Branding BUAP CU2 -->
+        <div class="flex items-center space-x-3 cursor-pointer" data-view-target="catalog">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 p-0.5 shadow-lg shadow-amber-500/20">
+            <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
+              <i class="fas fa-paw text-amber-400 text-lg"></i>
+            </div>
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span class="font-extrabold text-base tracking-tight text-white">CampusTrade</span>
+              <span class="bg-amber-500 text-slate-950 text-[10px] font-black px-1.5 py-0.2 rounded uppercase tracking-wider">CU2</span>
+            </div>
+            <p class="text-[10px] text-slate-400 font-medium">BUAP • Ecocampus Valsequillo</p>
+          </div>
+        </div>
+
+        <!-- Desktop Navigation Links -->
+        <nav class="hidden md:flex items-center space-x-1 lg:space-x-2">
+          <button data-view-target="catalog" class="px-3.5 py-2 rounded-xl text-xs font-semibold hover:bg-slate-800/80 transition flex items-center gap-2 text-amber-400">
+            <i class="fas fa-store"></i> Catálogo
+          </button>
+          <button data-view-target="map" class="px-3.5 py-2 rounded-xl text-xs font-semibold hover:bg-slate-800/80 transition flex items-center gap-2 text-slate-300">
+            <i class="fas fa-map-marked-alt text-sky-400"></i> Mapa de Entregas CU2
+          </button>
+          <button data-view-target="docs" class="px-3.5 py-2 rounded-xl text-xs font-semibold hover:bg-slate-800/80 transition flex items-center gap-2 text-slate-300">
+            <i class="fas fa-graduation-cap text-indigo-400"></i> Proyecto Académico ICC
+          </button>
+        </nav>
+
+        <!-- Right Side: Cart Button & Portal Vendedor Link -->
+        <div class="flex items-center space-x-3">
+          <button class="trigger-open-cart relative p-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-700/80 border border-slate-700/80 text-amber-400 transition active:scale-95" title="Ver Carrito">
+            <i class="fas fa-shopping-basket text-base"></i>
+            <span class="cart-badge-count hidden absolute -top-1.5 -right-1.5 bg-amber-500 text-slate-950 text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-slate-950">
+              0
+            </span>
+          </button>
+
+          <a id="btn-nav-seller" href="./portal-vendedor.html" class="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold px-3.5 py-2 rounded-xl text-xs transition shadow-lg shadow-amber-500/20 active:scale-95">
+            <i class="fas fa-user-shield"></i> Portal Vendedores
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- LIVE TICKER BANNER -->
+  <div class="bg-gradient-to-r from-slate-900 via-sky-950 to-slate-900 border-b border-slate-800 text-xs py-2 px-4 overflow-x-auto whitespace-nowrap">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-6 text-[11px] text-slate-300">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        <span class="font-bold text-white">Campus CU2 Valsequillo:</span>
+        <span class="text-sky-300">Entregas seguras en <strong>EMA 3 (Cómputo/ICC)</strong>, <strong>Nodo STU</strong> y <strong>CCS 1</strong></span>
+      </div>
+      <div class="hidden sm:flex items-center gap-4 text-slate-400">
+        <span><i class="fas fa-lock text-amber-400 mr-1"></i>Vendedores con matrícula verificada</span>
+        <span><i class="fas fa-shield-alt text-emerald-400 mr-1"></i>Cero fraude escolar ni sustancias prohibidas</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ========================================== -->
+    <!-- VISTA 1: CATÁLOGO DE PRODUCTOS (DEFAULT)   -->
+    <!-- ========================================== -->
+    <section id="view-catalog" class="space-y-6">
+
+      <!-- Hero Banner -->
+      <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-buap-800 via-slate-900 to-slate-950 border border-slate-800 p-6 sm:p-8 shadow-2xl">
+        <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none text-9xl text-amber-400">
+          <i class="fas fa-paw"></i>
+        </div>
+
+        <div class="relative z-10 max-w-2xl">
+          <div class="inline-flex items-center gap-2 bg-amber-500/15 border border-amber-500/30 text-amber-400 px-3 py-1 rounded-full text-xs font-bold mb-3">
+            <i class="fas fa-graduation-cap"></i> Proyecto Innovación ICC BUAP • CU2
+          </div>
+          <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight mb-2">
+            Plataforma de Microemprendimiento <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-200">CU2</span>
+          </h1>
+          <p class="text-sm sm:text-base text-slate-300 leading-relaxed mb-5">
+            Conectamos a estudiantes con emprendedores verificados en el campus. Pide tus gomitas, postres o accesorios con entregas coordinadas en puntos limpios y seguros.
+          </p>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <button data-view-target="map" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-2 transition shadow-lg shadow-amber-500/20 active:scale-95">
+              <i class="fas fa-map-marked-alt"></i> Ver Mapa de Edificios CU2
+            </button>
+            <a href="./portal-vendedor.html" class="bg-slate-800/90 hover:bg-slate-700/90 text-amber-300 border border-amber-500/30 font-bold px-4 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-2 transition">
+              <i class="fas fa-store text-amber-400"></i> ¿Vendes en CU2? Ingresa a tu Portal
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de Filtros y Búsqueda -->
+      <div class="glass-panel rounded-2xl p-4 space-y-4">
+        
+        <div class="flex flex-col sm:flex-row gap-3">
+          <!-- Input Búsqueda -->
+          <div class="relative flex-1">
+            <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            <input type="text" id="search-input" placeholder="Buscar productos, gomitas, botanas, vendedores..." class="w-full bg-slate-900 border border-slate-700/70 rounded-xl pl-9 pr-4 py-2.5 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition">
+          </div>
+
+          <!-- Selector de Edificio Rápido -->
+          <div class="w-full sm:w-72">
+            <select id="select-building-quick" class="w-full bg-slate-900 border border-slate-700/70 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-amber-500 transition cursor-pointer">
+              <!-- Rellenado dinámico con JS -->
+            </select>
+          </div>
+        </div>
+
+        <!-- Categorías -->
+        <div id="categories-container" class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+          <!-- Generado con JS -->
+        </div>
+
+        <!-- Etiqueta de Filtro Activo de Edificio -->
+        <div id="active-filter-tag"></div>
+
+      </div>
+
+      <!-- Grilla de Productos Reales -->
+      <div id="catalog-section">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span>Productos Disponibles en Campus</span>
+            <span class="text-xs font-normal text-slate-400">CU2</span>
+          </h2>
+          <span class="text-xs text-slate-400">Vendedores Estudiantiles Verificados</span>
+        </div>
+
+        <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+          <!-- Generado dinámicamente -->
+        </div>
+
+        <!-- Estado Vacío -->
+        <div id="products-empty" class="hidden text-center py-16 glass-card rounded-2xl">
+          <!-- Rellenado dinámico con JS -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- VISTA 2: MAPA INTERACTIVO DE CU2           -->
+    <!-- ========================================== -->
+    <section id="view-map" class="hidden space-y-6">
+      
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <span class="text-xs font-bold text-sky-400 uppercase tracking-wider">Ecocampus Valsequillo BUAP</span>
+          <h2 class="text-2xl font-extrabold text-white">Mapa de Puntos Seguros de Entrega en CU2</h2>
+          <p class="text-xs sm:text-sm text-slate-400">Haz clic en los puntos interactivos para ver qué edificios tienen vendedores o dónde acordar tu entrega sin salir de clase.</p>
+        </div>
+
+        <button data-view-target="catalog" class="self-start md:self-auto bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition">
+          <i class="fas fa-arrow-left"></i> Volver al Catálogo
+        </button>
+      </div>
+
+      <!-- Tarjeta de Edificio Seleccionado -->
+      <div id="building-detail-card" class="hidden"></div>
+
+      <!-- Visor del Mapa -->
+      <div class="map-viewport p-2 sm:p-4 border border-slate-800">
+        <div class="map-image-wrapper">
+          <div class="map-image-inner">
+            <img src="./assets/cu2-map.jpg" alt="Mapa Oficial de CU2 BUAP" class="w-full h-auto block rounded-lg select-none opacity-90" onerror="this.src='./assets/logo.svg'">
+            <!-- Overlay de Pines Interactivos -->
+            <div id="map-pins-overlay" class="absolute inset-0"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Guía de Edificios Clave en CU2 -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="glass-card p-4 rounded-xl border border-sky-500/20">
+          <div class="flex items-center gap-2 text-sky-400 font-bold text-xs mb-1">
+            <i class="fas fa-bus"></i> Nodo de Transferencia STU
+          </div>
+          <p class="text-xs text-slate-300">Punto neurálgico donde llegan y salen todos los autobuses universitarios. Ideal para recoger pedidos antes de partir o al llegar temprano a CU2.</p>
+        </div>
+
+        <div class="glass-card p-4 rounded-xl border border-amber-500/20">
+          <div class="flex items-center gap-2 text-amber-400 font-bold text-xs mb-1">
+            <i class="fas fa-laptop-code"></i> EMA 3 y 4 (Cómputo / ICC)
+          </div>
+          <p class="text-xs text-slate-300">Sede de Ingeniería en Ciencias de la Computación y TI. Punto de alta actividad donde se concentran snacks, cables de lab y bebidas frías.</p>
+        </div>
+
+        <div class="glass-card p-4 rounded-xl border border-emerald-500/20">
+          <div class="flex items-center gap-2 text-emerald-400 font-bold text-xs mb-1">
+            <i class="fas fa-shield-alt"></i> Puntos Limpios Autorizados
+          </div>
+          <p class="text-xs text-slate-300">Zonas abiertas acordadas para entregas respetuosas: explanadas, bancas exteriores y pasillos abiertos, sin aglomerar puertas de salones.</p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- VISTA 3: PROYECTO ACADÉMICO / INNOVACIÓN   -->
+    <!-- ========================================== -->
+    <section id="view-docs" class="hidden space-y-8 max-w-5xl mx-auto">
+      
+      <!-- Encabezado Académico -->
+      <div class="border-b border-slate-800 pb-6 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+          <span class="text-xs font-bold text-amber-400 uppercase tracking-widest">Ingeniería en Ciencias de la Computación • BUAP CU2</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Proyecto de Innovación: "CampusTrade CU2"</h2>
+          <p class="text-xs sm:text-sm text-slate-300 mt-1">Plataforma Digital de Economía Colaborativa y Microemprendimiento Estudiantil</p>
+        </div>
+
+        <button data-view-target="catalog" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition">
+          <i class="fas fa-play mr-1"></i> Probar Catálogo
+        </button>
+      </div>
+
+      <!-- Módulos Estructurados de la Innovación -->
+      <div class="space-y-6 text-slate-300 text-xs sm:text-sm leading-relaxed">
+        
+        <!-- 1. Objetivo -->
+        <div class="glass-card p-6 rounded-2xl border border-slate-800">
+          <h3 class="text-base font-extrabold text-white flex items-center gap-2 mb-3">
+            <span class="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs font-black">1</span>
+            Objetivo de la Innovación
+          </h3>
+          <p class="mb-3">
+            Desarrollar una aplicación web centralizada (PWA) orientada a dispositivos móviles que conecte a estudiantes emprendedores con la comunidad universitaria del campus **BUAP CU2 (Ecocampus Valsequillo)**.
+          </p>
+          <p class="text-slate-400">
+            La plataforma permite a los vendedores gestionar un catálogo digital en tiempo real con cuentas protegidas por correo institucional, compartir su ubicación por edificios (EMA 1-11, VAL 1-5, FCQ1, FCE1, CCS1, Nodos STU), recibir pedidos anticipados y coordinar puntos de entrega limpios y seguros, facilitando pagos digitales o transferencias y erradicando la venta ambulante caótica en pasillos.
+          </p>
+        </div>
+
+        <!-- 2. Beneficios vs Conflictos y sus Consecuencias -->
+        <div class="glass-card p-6 rounded-2xl border border-slate-800">
+          <h3 class="text-base font-extrabold text-white flex items-center gap-2 mb-4">
+            <span class="w-6 h-6 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs font-black">2</span>
+            Beneficios, Conflictos y sus Consecuencias Directas
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Beneficios -->
+            <div class="bg-emerald-950/30 border border-emerald-500/30 p-4 rounded-xl space-y-2">
+              <h4 class="font-bold text-emerald-400 text-xs sm:text-sm flex items-center gap-1.5">
+                <i class="fas fa-check-circle"></i> Beneficios Clave
+              </h4>
+              <p class="text-xs text-slate-300">
+                Otorga visibilidad instantánea a pequeños negocios estudiantiles, optimiza tiempos lectivos (el estudiante no recorre pasillos anunciando productos) y formaliza transacciones con trazabilidad digital.
+              </p>
+              <div class="pt-2 border-t border-emerald-500/20">
+                <span class="font-bold text-white text-xs block mb-1">Consecuencia Directa:</span>
+                <p class="text-xs text-emerald-200">
+                  Incremento neto de hasta 40% en ingresos de los estudiantes vendedores y mayor seguridad al disminuir el manejo de dinero en efectivo en el transporte STU mediante pagos CoDi/SPEI.
+                </p>
+              </div>
+            </div>
+
+            <!-- Conflictos -->
+            <div class="bg-red-950/30 border border-red-500/30 p-4 rounded-xl space-y-2">
+              <h4 class="font-bold text-red-400 text-xs sm:text-sm flex items-center gap-1.5">
+                <i class="fas fa-exclamation-triangle"></i> Conflictos Potenciales
+              </h4>
+              <p class="text-xs text-slate-300">
+                Resistencia por parte de las cafeterías concesionadas oficiales en CU2 (alegando competencia desleal) y posibles roces con la administración universitaria respecto al comercio no regulado.
+              </p>
+              <div class="pt-2 border-t border-red-500/20">
+                <span class="font-bold text-white text-xs block mb-1">Consecuencia y Mitigación:</span>
+                <p class="text-xs text-red-200">
+                  Riesgo de sanciones o amonestaciones; para solucionarlo, la plataforma implementa <strong>"Puntos Limpios de Entrega"</strong> en áreas exteriores abiertas y prohíbe ventas dentro de aulas lectivas.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Impacto Tecnológico y Económico -->
+        <div class="glass-card p-6 rounded-2xl border border-slate-800">
+          <h3 class="text-base font-extrabold text-white flex items-center gap-2 mb-3">
+            <span class="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-black">3</span>
+            Impacto Tecnológico, Económico y Social
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800">
+              <span class="text-indigo-400 font-bold text-xs block mb-1"><i class="fas fa-code mr-1"></i> Tecnológico</span>
+              <p class="text-xs text-slate-300">
+                Digitaliza un sector tradicionalmente analógico e informal mediante arquitectura PWA offline-first, georreferenciación de campus y automatización de pedidos por WhatsApp.
+              </p>
+            </div>
+
+            <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800">
+              <span class="text-amber-400 font-bold text-xs block mb-1"><i class="fas fa-coins mr-1"></i> Económico</span>
+              <p class="text-xs text-slate-300">
+                Mantiene el flujo de dinero dentro de la comunidad de CU2, dinamizando la economía entre pares y aliviando el alto costo del traslado diario hacia Valsequillo.
+              </p>
+            </div>
+
+            <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800">
+              <span class="text-emerald-400 font-bold text-xs block mb-1"><i class="fas fa-hands-helping mr-1"></i> Social</span>
+              <p class="text-xs text-slate-300">
+                Solidaridad estudiantil ("Lobos apoyando a Lobos"), eliminando el estigma del estudiante que trabaja para costear sus estudios universitarios.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Trabajo Interdisciplinario -->
+        <div class="glass-card p-6 rounded-2xl border border-slate-800">
+          <h3 class="text-base font-extrabold text-white flex items-center gap-2 mb-3">
+            <span class="w-6 h-6 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center text-xs font-black">4</span>
+            Trabajo Interdisciplinario en la BUAP
+          </h3>
+          <p class="text-slate-400 text-xs mb-4">Para que la plataforma sea viable y no se quede en un mero ejercicio de código:</p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div class="p-3.5 bg-slate-900 rounded-xl border border-slate-800">
+              <h4 class="font-bold text-sky-400 text-xs mb-1">💻 Computación (ICC)</h4>
+              <p class="text-[11px] text-slate-400">Arquitectura frontend/backend, mapas interactivos, caché offline PWA y ciberseguridad.</p>
+            </div>
+
+            <div class="p-3.5 bg-slate-900 rounded-xl border border-slate-800">
+              <h4 class="font-bold text-amber-400 text-xs mb-1">⚖️ Derecho (FDCS)</h4>
+              <p class="text-[11px] text-slate-400">Términos de servicio, aviso de privacidad conforme a LFPDPPP y compatibilidad reglamentaria BUAP.</p>
+            </div>
+
+            <div class="p-3.5 bg-slate-900 rounded-xl border border-slate-800">
+              <h4 class="font-bold text-emerald-400 text-xs mb-1">📊 Administración (FCA)</h4>
+              <p class="text-[11px] text-slate-400">Modelo de sostenibilidad sin comisiones abusivas y módulos de educación financiera para vendedores.</p>
+            </div>
+
+            <div class="p-3.5 bg-slate-900 rounded-xl border border-slate-800">
+              <h4 class="font-bold text-rose-400 text-xs mb-1">🥗 Salud (CCS1)</h4>
+              <p class="text-[11px] text-slate-400">Lineamientos de inocuidad alimentaria, empaque sellado y advertencias de ingredientes alergénicos.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Retribución Social -->
+        <div class="glass-card p-6 rounded-2xl border border-slate-800">
+          <h3 class="text-base font-extrabold text-white flex items-center gap-2 mb-3">
+            <span class="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs font-black">5</span>
+            Retribución Social: Combate a la Deserción Escolar
+          </h3>
+          <p class="text-slate-300 mb-2">
+            El proyecto tiene un componente de apoyo social directo: ofrece una herramienta tecnológica gratuita para que estudiantes foráneos o de escasos recursos en CU2 solventen sus pasajes del STU, consumibles y comidas diarias.
+          </p>
+          <p class="text-slate-400 text-xs">
+            Al no obligar al estudiante a buscar un empleo externo con turnos inflexibles de 8 horas, se reduce notablemente la tasa de abandono de asignaturas y de deserción escolar por causas socioeconómicas.
+          </p>
+        </div>
+
+        <!-- 6. Ética y Regulaciones -->
+        <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+          <h3 class="text-base font-extrabold text-white flex items-center gap-2">
+            <span class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-black">6</span>
+            Elementos Éticos y Regulaciones Universitarias
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-2 bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+              <h4 class="font-bold text-amber-400 text-xs">🛡️ Compromisos Éticos</h4>
+              <ul class="text-xs space-y-2 text-slate-300">
+                <li class="flex items-start gap-2">
+                  <i class="fas fa-user-shield text-amber-400 mt-0.5"></i>
+                  <span><strong>Privacidad de Datos:</strong> No se venden ni comparten correos institucionales (@alumno.buap.mx), teléfonos ni historiales de compra a entidades externas.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <i class="fas fa-balance-scale text-amber-400 mt-0.5"></i>
+                  <span><strong>Transparencia:</strong> Sistema de reseñas bidireccional que inhibe el acoso, calumnias o la manipulación maliciosa de calificaciones.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="space-y-2 bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+              <h4 class="font-bold text-sky-400 text-xs">📜 Regulaciones Aplicadas</h4>
+              <ul class="text-xs space-y-2 text-slate-300">
+                <li class="flex items-start gap-2">
+                  <i class="fas fa-ban text-red-400 mt-0.5"></i>
+                  <span><strong>Cero Tolerancia al Fraude Escolar:</strong> Moderación algorítmica para prohibir terminantemente la compra/venta de tareas, exámenes, ensayos o tesis.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <i class="fas fa-wine-bottle text-red-400 mt-0.5"></i>
+                  <span><strong>Reglamento BUAP:</strong> Prohibición estricta de alcohol, tabaco, vapeadores o sustancias reguladas dentro de las instalaciones universitarias.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <i class="fas fa-utensils text-emerald-400 mt-0.5"></i>
+                  <span><strong>Inocuidad Alimentaria:</strong> Protocolo de empaque sellado y checklist de higiene para quienes comercialicen alimentos preparados.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- MODAL: CARRITO Y CHECKOUT                  -->
+  <!-- ========================================== -->
+  <div id="cart-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+    <div class="glass-panel w-full max-w-lg rounded-3xl border border-slate-800 shadow-2xl overflow-hidden max-h-[92vh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- Encabezado Carrito -->
+      <div class="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <i class="fas fa-shopping-basket text-amber-400 text-lg"></i>
+          <h3 class="font-extrabold text-base text-white">Mi Carrito de Pedido</h3>
+        </div>
+        <button data-close-modal="cart-modal" class="text-slate-400 hover:text-white p-1 rounded-lg">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Contenido del Carrito (Scrollable) -->
+      <div class="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1">
+        
+        <div id="cart-items-container" class="space-y-2.5">
+          <!-- Rellenado con JS -->
+        </div>
+
+        <div id="cart-empty-notice" class="hidden text-center py-8">
+          <i class="fas fa-shopping-bag text-3xl text-slate-600 mb-2 block"></i>
+          <p class="text-xs text-slate-400">Tu carrito está vacío. ¡Explora el catálogo y añade tus productos!</p>
+        </div>
+
+        <!-- Formulario de Checkout -->
+        <form id="cart-checkout-form" class="space-y-3 pt-3 border-t border-slate-800">
+          <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider">Detalles de Entrega en CU2</h4>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-medium text-slate-300 mb-1">Tu Nombre / Apodo *</label>
+              <input type="text" id="checkout-customer-name" placeholder="Ej. Carlos (Electrónica)" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200">
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-medium text-slate-300 mb-1">Tu WhatsApp / Teléfono</label>
+              <input type="tel" id="checkout-customer-contact" placeholder="Ej. 2221234567" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-medium text-slate-300 mb-1">Punto Seguro de Entrega (Edificio CU2) *</label>
+            <select id="checkout-delivery-point" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200">
+              <!-- Rellenado dinámico con JS -->
+            </select>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-medium text-slate-300 mb-1">Horario de Entrega *</label>
+              <select id="checkout-delivery-time" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200">
+                <option value="Inmediato (próximos 15 min)">Inmediato</option>
+                <option value="Cambio de clase (11:50 - 12:00)">Cambio de clase (11:50 hrs)</option>
+                <option value="Cambio de clase (13:50 - 14:00)">Cambio de clase (13:50 hrs)</option>
+                <option value="Salida en el STU (15:50 hrs)">Salida en el STU</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-medium text-slate-300 mb-1">Método de Pago *</label>
+              <select id="checkout-payment-method" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200">
+                <option value="Efectivo contra entrega">Efectivo contra entrega</option>
+                <option value="Transferencia CoDi / SPEI">Transferencia CoDi / SPEI</option>
+                <option value="BBVA / MercadoPago">BBVA / MercadoPago</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-medium text-slate-300 mb-1">Notas especiales (opcional)</label>
+            <input type="text" id="checkout-notes" placeholder="Ej. Llevo billete de $50 / Estoy sentado en las bancas" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200">
+          </div>
+
+          <!-- Total y Botón de Confirmación -->
+          <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
+            <div>
+              <span class="text-[10px] text-slate-400 block">Total a pagar:</span>
+              <span id="cart-total-amount" class="text-lg font-black text-amber-400">$0.00 MXN</span>
+            </div>
+
+            <button type="submit" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-5 py-2.5 rounded-xl text-xs transition shadow-lg shadow-amber-500/25 active:scale-95">
+              Confirmar Pedido <i class="fas fa-arrow-right ml-1"></i>
+            </button>
+          </div>
+        </form>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: ÉXITO DE PEDIDO Y WHATSAPP          -->
+  <!-- ========================================== -->
+  <div id="order-success-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md">
+    <div class="glass-panel w-full max-w-md rounded-3xl border border-emerald-500/40 p-6 shadow-2xl text-center space-y-4 animate-in fade-in zoom-in-95 duration-200">
+      
+      <div class="w-16 h-16 mx-auto rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-3xl">
+        <i class="fas fa-check"></i>
+      </div>
+
+      <div>
+        <span id="success-order-id" class="text-xs font-black text-amber-400 uppercase tracking-widest bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">#LOB-0000</span>
+        <h3 class="text-xl font-extrabold text-white mt-2">¡Pedido Registrado con Éxito!</h3>
+        <p class="text-xs text-slate-300 mt-1">El vendedor ya tiene tu pedido en su panel privado. Puedes enviarle un mensaje por WhatsApp para acordar los últimos detalles.</p>
+      </div>
+
+      <div class="bg-slate-900/90 rounded-2xl p-4 text-xs text-left space-y-1.5 border border-slate-800">
+        <div class="flex justify-between text-slate-300">
+          <span>Punto de entrega:</span>
+          <span id="success-order-point" class="font-bold text-white">EMA 3</span>
+        </div>
+        <div class="flex justify-between text-slate-300">
+          <span>Horario:</span>
+          <span id="success-order-time" class="font-bold text-white">Cambio de clase</span>
+        </div>
+        <div class="flex justify-between text-slate-300 pt-1 border-t border-slate-800">
+          <span>Total:</span>
+          <span id="success-order-total" class="font-extrabold text-amber-400 text-sm">$0.00 MXN</span>
+        </div>
+      </div>
+
+      <div class="space-y-2 pt-2">
+        <a id="btn-whatsapp-order" href="#" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-3 rounded-2xl text-xs flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-600/30 active:scale-95">
+          <i class="fab fa-whatsapp text-lg"></i> Abrir WhatsApp y Confirmar Entrega
+        </a>
+
+        <button data-close-modal="order-success-modal" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-2.5 rounded-2xl text-xs transition">
+          Cerrar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- BARRA DE NAVEGACIÓN INFERIOR (MÓVIL / PWA) -->
+  <!-- ========================================== -->
+  <div class="md:hidden mobile-bottom-nav">
+    <div class="grid grid-cols-4 h-16 text-slate-400">
+      
+      <button data-view-target="catalog" class="flex flex-col items-center justify-center space-y-1 text-amber-400 transition active:scale-95">
+        <i class="fas fa-store text-base"></i>
+        <span class="text-[10px] font-semibold">Catálogo</span>
+      </button>
+
+      <button data-view-target="map" class="flex flex-col items-center justify-center space-y-1 transition active:scale-95">
+        <i class="fas fa-map-marked-alt text-base"></i>
+        <span class="text-[10px] font-semibold">Mapa CU2</span>
+      </button>
+
+      <button class="trigger-open-cart flex flex-col items-center justify-center space-y-1 relative transition active:scale-95 text-amber-400">
+        <div class="relative">
+          <i class="fas fa-shopping-basket text-base"></i>
+          <span class="cart-badge-count hidden absolute -top-1.5 -right-2 bg-amber-500 text-slate-950 text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">0</span>
+        </div>
+        <span class="text-[10px] font-semibold">Carrito</span>
+      </button>
+
+      <a href="./portal-vendedor.html" class="flex flex-col items-center justify-center space-y-1 transition active:scale-95 text-sky-400">
+        <i class="fas fa-user-shield text-base"></i>
+        <span class="text-[10px] font-semibold">Vendedores</span>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- SCRIPTS DE LA APLICACIÓN -->
+  <script src="./js/map-data.js"></script>
+  <script src="./js/initial-data.js"></script>
+  <script src="./js/store.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>

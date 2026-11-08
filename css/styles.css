@@ -1,0 +1,197 @@
+/* CampusTrade CU2 - Custom Stylesheet */
+:root {
+  --buap-navy-900: #001B2E;
+  --buap-navy-800: #002B49;
+  --buap-navy-700: #003B5C;
+  --buap-navy-600: #02507d;
+  --buap-gold-500: #F59E0B;
+  --buap-gold-600: #D97706;
+  --buap-gold-400: #FBBF24;
+  --lobo-accent: #0284c7;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background-color: #0b1320;
+  color: #f1f5f9;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Glassmorphism helpers */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: rgba(30, 41, 59, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(245, 158, 11, 0.35);
+  box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.5), 0 0 20px -5px rgba(245, 158, 11, 0.15);
+}
+
+/* Map Interactive Container */
+.map-viewport {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8), 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+  background: #020617;
+}
+
+.map-image-wrapper {
+  position: relative;
+  width: 100%;
+  max-height: 560px;
+  overflow-y: auto;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #334155 #0f172a;
+}
+
+.map-image-inner {
+  position: relative;
+  min-width: 420px;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.map-pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  z-index: 20;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.map-pin:hover {
+  transform: translate(-50%, -50%) scale(1.28);
+  z-index: 35;
+}
+
+.map-pin.active .pin-circle {
+  background: #f59e0b;
+  color: #000;
+  border-color: #ffffff;
+  box-shadow: 0 0 20px #f59e0b, 0 0 0 5px rgba(245, 158, 11, 0.3);
+}
+
+.pin-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #0284c7;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+  transition: all 0.2s ease;
+}
+
+.pin-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: rgba(2, 132, 199, 0.4);
+  animation: pulse-ring 2.2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+  z-index: -1;
+  pointer-events: none;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: translate(-50%, -50%) scale(0.6);
+    opacity: 0.9;
+  }
+  80%, 100% {
+    transform: translate(-50%, -50%) scale(1.8);
+    opacity: 0;
+  }
+}
+
+/* Category Pill active */
+.category-pill {
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.category-pill.active {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #001B2E;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+}
+
+/* Bottom Nav Bar for Mobile */
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: rgba(11, 19, 32, 0.95);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Badge glow */
+.badge-gold {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #fbbf24;
+}
+
+.badge-blue {
+  background: rgba(2, 132, 199, 0.15);
+  border: 1px solid rgba(2, 132, 199, 0.3);
+  color: #38bdf8;
+}
+
+.badge-green {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #34d399;
+}
+
+/* Smooth modal transitions */
+.modal-overlay {
+  transition: opacity 0.25s ease-in-out;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #090e17;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #f59e0b;
+}
+
+/* Floating Action Cart */
+.floating-cart-btn {
+  box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.45), 0 8px 10px -6px rgba(245, 158, 11, 0.3);
+}
