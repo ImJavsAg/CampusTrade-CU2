@@ -8,7 +8,7 @@
 ## 🌟 Descripción General
 **CampusTrade CU2** es una plataforma web y aplicación progresiva (**PWA**) para la comunidad universitaria de la **BUAP en CU2**. Digitaliza, organiza y asegura el microemprendimiento estudiantil con:
 1. **Catálogo Público de Estudiantes:** Los compradores exploran productos reales publicados por vendedores verificados y coordinan entregas en puntos limpios de CU2.
-2. **Portal Apartado y Protegido para Vendedores:** Módulo independiente con autenticación (correo institucional `@alumno.buap.mx`, matrícula y contraseña), donde el vendedor gestiona sus pedidos, ganancias e inventario en privado.
+2. **Portal Apartado y Protegido para Vendedores:** Módulo independiente con autenticación (correo institucional `@alm.buap.mx`, matrícula y contraseña), donde el vendedor gestiona sus pedidos, ganancias e inventario en privado.
 3. **Cero Datos de Prueba:** El sistema arranca limpio para producción real. Solo aparecen productos que los estudiantes registrados publiquen.
 4. **Servidor Web Incorporado:** Ejecutable localmente con `start-server.bat` o desplegable en la nube con Netlify / Vercel en un clic.
 
