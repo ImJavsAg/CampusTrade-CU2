@@ -30,6 +30,7 @@
   // Solo permite imágenes http(s); evita esquemas como javascript:
   function safeImg(url) {
     const u = String(url || '').trim();
+    if (/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(u)) return u; // foto subida desde el dispositivo
     return /^https?:\/\//i.test(u) ? u : FALLBACK_IMG;
   }
 

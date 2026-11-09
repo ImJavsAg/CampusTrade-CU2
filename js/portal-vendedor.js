@@ -12,6 +12,11 @@
   let currentSeller = null;    // Perfil del vendedor (documento vendedores/{uid})
   let activeTab = 'orders';    // 'orders' o 'products'
   let registering = false;     // Evita que onAuthStateChanged interfiera mientras se crea la cuenta
+  let uploadedImageData = '';  // Foto elegida desde el dispositivo (data URL JPEG ya comprimido)
+
+  // Límite de la foto guardada (en caracteres de la data URL). Debe coincidir con firestore.rules.
+  const MAX_IMAGE_CHARS = 150000;
+  const MAX_IMAGE_SIDE = 640;
 
   let sellerProducts = [];
   let sellerOrders = [];
@@ -82,6 +87,109 @@
   }
 
   // ==========================================================
+  // FOTO DESDE EL DISPOSITIVO
+  // Se redimensiona y comprime en el navegador y se guarda como data URL en el producto.
+  // ==========================================================
+  function loadImageFromFile(file) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('decode')); };
+      img.src = url;
+    });
+  }
+
+  async function compressImage(file) {
+    const img = await loadImageFromFile(file);
+    let side = MAX_IMAGE_SIDE;
+
+    // Reduce calidad y luego tamaño hasta caber en el límite
+    for (let attempt = 0; attempt < 6; attempt++) {
+      const scale = Math.min(1, side / Math.max(img.naturalWidth, img.naturalHeight));
+      const w = Math.max(1, Math.round(img.naturalWidth * scale));
+      const h = Math.max(1, Math.round(img.naturalHeight * scale));
+
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff'; // PNG con transparencia -> fondo blanco
+      ctx.fillRect(0, 0, w, h);
+      ctx.drawImage(img, 0, 0, w, h);
+
+      for (const quality of [0.78, 0.65, 0.5]) {
+        const data = canvas.toDataURL('image/jpeg', quality);
+        if (data.length <= MAX_IMAGE_CHARS) return data;
+      }
+      side = Math.round(side * 0.8);
+    }
+    throw new Error('too-big');
+  }
+
+  function setImagePreview(dataUrl) {
+    uploadedImageData = dataUrl || '';
+    const wrap = document.getElementById('prod-image-preview-wrap');
+    const preview = document.getElementById('prod-image-preview');
+    const status = document.getElementById('prod-image-status');
+    const urlInput = document.getElementById('prod-image');
+
+    if (uploadedImageData) {
+      if (preview) preview.src = uploadedImageData;
+      wrap?.classList.remove('hidden');
+      if (urlInput) { urlInput.value = ''; urlInput.disabled = true; }
+      if (status) status.textContent = `Foto lista (${Math.round(uploadedImageData.length * 0.75 / 1024)} KB).`;
+    } else {
+      if (preview) preview.removeAttribute('src');
+      wrap?.classList.add('hidden');
+      if (urlInput) urlInput.disabled = false;
+      if (status) status.textContent = 'Se ajusta y comprime automáticamente. Funciona con la galería o la cámara del celular.';
+    }
+  }
+
+  function setupImageUpload() {
+    const fileInput = document.getElementById('prod-image-file');
+    const btnPick = document.getElementById('btn-pick-image');
+    const btnClear = document.getElementById('btn-clear-image');
+    const status = document.getElementById('prod-image-status');
+    if (!fileInput || !btnPick) return;
+
+    btnPick.addEventListener('click', () => fileInput.click());
+    btnClear?.addEventListener('click', () => { fileInput.value = ''; setImagePreview(''); });
+
+    fileInput.addEventListener('change', async () => {
+      const file = fileInput.files && fileInput.files[0];
+      if (!file) return;
+
+      if (!/^image\//.test(file.type)) {
+        showNotificationToast('Elige un archivo de imagen (JPG, PNG o WebP).', 'error');
+        fileInput.value = '';
+        return;
+      }
+      if (file.size > 15 * 1024 * 1024) {
+        showNotificationToast('La foto pesa más de 15 MB. Elige una más ligera.', 'error');
+        fileInput.value = '';
+        return;
+      }
+
+      if (status) status.textContent = 'Procesando foto…';
+      try {
+        setImagePreview(await compressImage(file));
+      } catch (error) {
+        console.error('Error al procesar la foto:', error);
+        setImagePreview('');
+        showNotificationToast(
+          error.message === 'too-big'
+            ? 'No se pudo reducir la foto lo suficiente. Prueba con otra.'
+            : 'No se pudo leer esa imagen. Si es formato HEIC, toma la foto en JPG o usa una captura.',
+          'error'
+        );
+      }
+      fileInput.value = '';
+    });
+  }
+
+  // ==========================================================
   // ARRANQUE
   // ==========================================================
   document.addEventListener('DOMContentLoaded', () => {
@@ -94,6 +202,7 @@
     document.getElementById('auth-section')?.classList.add('hidden');
 
     setupEventListeners();
+    setupImageUpload();
     auth.onAuthStateChanged(handleAuthChange);
   });
 
@@ -453,6 +562,7 @@
     function closeProductModal() {
       if (modalProduct) modalProduct.classList.add('hidden');
       document.getElementById('form-modal-product')?.reset();
+      setImagePreview('');
     }
 
     if (btnOpenModal) btnOpenModal.addEventListener('click', openProductModal);
@@ -487,9 +597,14 @@
         if (!Number.isInteger(stock) || stock < 0 || stock >= 10000) return alert('Escribe un stock válido (entero entre 0 y 9999).');
         if (descripcion.length > 500) return alert('La descripción no puede pasar de 500 caracteres.');
 
-        const imagenUrl = document.getElementById('prod-image').value.trim();
-        if (imagenUrl && !/^https?:\/\/\S+$/i.test(imagenUrl)) return alert('La imagen debe ser un enlace que empiece con http:// o https://');
-        if (imagenUrl.length > 2000) return alert('El enlace de la imagen es demasiado largo.');
+        // La foto puede venir del dispositivo (data URL comprimida) o de un enlace http(s)
+        const imagenUrl = uploadedImageData || document.getElementById('prod-image').value.trim();
+        if (!uploadedImageData) {
+          if (imagenUrl && !/^https?:\/\/\S+$/i.test(imagenUrl)) return alert('La foto debe ser un enlace que empiece con http:// o https://, o súbela desde tu dispositivo.');
+          if (imagenUrl.length > 2000) return alert('El enlace de la foto es demasiado largo.');
+        } else if (imagenUrl.length > MAX_IMAGE_CHARS) {
+          return alert('La foto es demasiado pesada. Elige otra.');
+        }
 
         // Filtro ético y legal BUAP
         const text = `${nombre} ${descripcion}`.toLowerCase();
@@ -509,7 +624,7 @@
           precio,
           unidad: document.getElementById('prod-unit').value.trim().slice(0, 60),
           stock,
-          imagen: document.getElementById('prod-image').value.trim(),
+          imagen: imagenUrl,
           descripcion,
           etiquetas: document.getElementById('prod-tags').value.trim().slice(0, 200),
 
