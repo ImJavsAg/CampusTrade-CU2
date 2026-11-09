@@ -35,7 +35,7 @@
     window.CampusStore.init();
     loadCart();
     renderCategories();
-    renderProducts();
+    startProductListener();
     renderMapPins();
     updateCartBadges();
     setupEventListeners();
@@ -105,23 +105,149 @@
     const activeFilterTag = document.getElementById('active-filter-tag');
     if (!grid) return;
 
-    const allProducts = window.CampusStore.getPublicProducts();
+    // RENDERIZADO DE PRODUCTOS EN TIEMPO REAL DESDE FIREBASE
+  let allProductsFromCloud = []; // Variable para almacenar los productos descargados
 
-    let filtered = allProducts.filter(product => {
-      const matchesCat = CLIENT_STATE.activeCategory === 'all' || product.category === CLIENT_STATE.activeCategory;
+  function startProductListener() {
+    // Si la conexión a la base de datos existe (se creó en el index.html)
+    if (typeof db !== 'undefined') {
+      db.collection("productos").onSnapshot((querySnapshot) => {
+        allProductsFromCloud = [];
+        querySnapshot.forEach((doc) => {
+          allProductsFromCloud.push({ id: doc.id, ...doc.data() });
+        });
+        // Una vez que tenemos los datos, llamamos a renderizar la vista
+        renderProductsView();
+      }, (error) => {
+        console.error("Error al escuchar productos desde Firebase: ", error);
+      });
+    } else {
+      console.warn("Firebase no está inicializado.");
+    }
+  }
+
+  function renderProductsView() {
+    const grid = document.getElementById('products-grid');
+    const emptyState = document.getElementById('products-empty');
+    const activeFilterTag = document.getElementById('active-filter-tag');
+    if (!grid) return;
+
+    // Usar el arreglo que viene desde Firebase
+    let filtered = allProductsFromCloud.filter(product => {
+      const matchesCat = CLIENT_STATE.activeCategory === 'all' || product.categoria === CLIENT_STATE.activeCategory;
 
       const q = CLIENT_STATE.searchQuery.toLowerCase().trim();
       const matchesSearch = !q || 
-        product.name.toLowerCase().includes(q) ||
-        (product.description && product.description.toLowerCase().includes(q)) ||
-        product.seller.name.toLowerCase().includes(q) ||
-        (product.tags && product.tags.some(t => t.toLowerCase().includes(q)));
+        product.nombre.toLowerCase().includes(q) ||
+        (product.descripcion && product.descripcion.toLowerCase().includes(q)) ||
+        (product.etiquetas && product.etiquetas.toLowerCase().includes(q));
 
-      const matchesBuilding = !CLIENT_STATE.selectedBuildingId || 
-        (product.seller && product.seller.currentBuildingId === CLIENT_STATE.selectedBuildingId);
-
-      return matchesCat && matchesSearch && matchesBuilding;
+      // Si implementas la ubicación en Firebase, aquí podrías filtrar por edificio
+      return matchesCat && matchesSearch;
     });
+
+    if (activeFilterTag) {
+      if (CLIENT_STATE.selectedBuildingId) {
+        const building = window.CU2_BUILDINGS.find(b => b.id === CLIENT_STATE.selectedBuildingId);
+        activeFilterTag.innerHTML = `
+          <div class="inline-flex items-center gap-2 bg-amber-500/20 border border-amber-500/40 text-amber-300 px-3 py-1 rounded-full text-xs font-semibold">
+            <i class="fas fa-map-marker-alt"></i> Filtrado por: ${building ? building.name : 'Edificio'}
+            <button id="clear-building-filter" class="hover:text-white ml-1">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        `;
+        document.getElementById('clear-building-filter')?.addEventListener('click', () => {
+          CLIENT_STATE.selectedBuildingId = null;
+          updateActivePinUI();
+          renderProductsView();
+        });
+      } else {
+        activeFilterTag.innerHTML = '';
+      }
+    }
+
+    if (filtered.length === 0) {
+      grid.innerHTML = '';
+      if (emptyState) {
+        emptyState.classList.remove('hidden');
+        if (allProductsFromCloud.length === 0) {
+          emptyState.innerHTML = `
+            <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-2xl">
+              <i class="fas fa-store"></i>
+            </div>
+            <h3 class="font-extrabold text-base text-white">Catálogo listo para el Campus CU2</h3>
+            <p class="text-xs text-slate-400 mt-1 max-w-md mx-auto">
+              Actualmente no hay productos registrados. Si eres estudiante y vendes dulces, postres, desayunos o artículos en CU2, crea tu cuenta de vendedor y publica tus productos hoy mismo.
+            </p>
+            <div class="mt-4">
+              <a href="./portal-vendedor.html" class="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-5 py-2.5 rounded-xl text-xs transition shadow-lg shadow-amber-500/25">
+                <i class="fas fa-user-plus"></i> Registrarme como Vendedor CU2
+              </a>
+            </div>
+          `;
+        } else {
+          emptyState.innerHTML = `
+            <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-slate-800 flex items-center justify-center text-slate-500 text-2xl">
+              <i class="fas fa-search"></i>
+            </div>
+            <h3 class="font-bold text-base text-slate-200">No encontramos productos con estos filtros</h3>
+            <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">Prueba cambiando de categoría o seleccionando otro edificio del campus.</p>
+          `;
+        }
+      }
+      return;
+    }
+
+    if (emptyState) emptyState.classList.add('hidden');
+
+    grid.innerHTML = filtered.map(prod => {
+      const inStock = prod.stock > 0;
+      
+      return `
+        <div class="glass-card rounded-2xl overflow-hidden flex flex-col justify-between group">
+          <div class="relative">
+            <img src="${prod.imagen || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&auto=format&fit=crop&q=80'}" alt="${prod.nombre}" class="w-full h-44 object-cover object-center group-hover:scale-105 transition duration-500 bg-slate-900" onerror="this.src='https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&auto=format&fit=crop&q=80'">
+            
+            <span class="absolute top-3 left-3 bg-slate-950/90 backdrop-blur-md text-amber-400 font-extrabold text-sm px-2.5 py-1 rounded-lg border border-amber-500/30">
+              $${parseFloat(prod.precio).toFixed(2)} MXN
+            </span>
+
+            <span class="absolute top-3 right-3 text-xs px-2.5 py-1 rounded-full font-semibold ${
+              inStock ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-500/40' : 'bg-red-950/80 text-red-300 border border-red-500/40'
+            }">
+              ${inStock ? `${prod.stock} disponibles` : 'Agotado'}
+            </span>
+          </div>
+
+          <div class="p-4 flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="font-bold text-slate-100 text-base leading-snug line-clamp-1 mb-1" title="${prod.nombre}">
+                ${prod.nombre}
+              </h3>
+              
+              <p class="text-xs text-slate-400 line-clamp-2 mb-3">
+                ${prod.descripcion || 'Producto verificado de estudiante emprendedor.'}
+              </p>
+            </div>
+
+            <div class="flex items-center gap-2 pt-2 border-t border-slate-800/80">
+              <button class="btn-quick-order flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition active:scale-95 shadow-lg shadow-amber-500/20" data-id="${prod.id}">
+                <i class="fas fa-shopping-basket"></i> Pedir
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Listener para añadir al carrito (usaremos la nueva función)
+    grid.querySelectorAll('.btn-quick-order').forEach(btn => {
+      btn.addEventListener('click', () => {
+        addToCartCloud(btn.getAttribute('data-id'));
+      });
+    });
+  }
 
     // Tag indicador de filtro por edificio
     if (activeFilterTag) {
@@ -276,10 +402,13 @@
     });
   }
 
-  // CARRITO
-  function addToCart(productId) {
-    const products = window.CampusStore.getPublicProducts();
-    const product = products.find(p => p.id === productId);
+// ==========================================
+  // LÓGICA DEL CARRITO (CONECTADA A FIREBASE)
+  // ==========================================
+
+  function addToCartCloud(productId) {
+    // 1. Buscamos el producto en el arreglo que descargamos de Firebase
+    const product = allProductsFromCloud.find(p => p.id === productId);
     if (!product) return;
 
     if (product.stock <= 0) {
@@ -298,12 +427,14 @@
       CLIENT_STATE.cart.push({
         productId: product.id,
         quantity: 1,
-        sellerId: product.sellerId
+        // Usaremos vendedorId cuando lo agreguemos en el siguiente paso
+        sellerId: product.vendedorId || 'anonimo' 
       });
     }
 
     saveCart();
-    showToast(`¡"${product.name}" añadido al pedido!`, 'success');
+    // Usamos product.nombre en lugar de product.name
+    showToast(`¡"${product.nombre}" añadido al pedido!`, 'success');
   }
 
   function removeFromCart(productId) {
@@ -312,10 +443,10 @@
     renderCartModal();
   }
 
-  function updateCartQuantity(productId, delta) {
+  function updateCartQuantityCloud(productId, delta) {
     const item = CLIENT_STATE.cart.find(i => i.productId === productId);
-    const products = window.CampusStore.getPublicProducts();
-    const product = products.find(p => p.id === productId);
+    // Cambiamos window.CampusStore.getPublicProducts() por allProductsFromCloud
+    const product = allProductsFromCloud.find(p => p.id === productId);
     if (!item || !product) return;
 
     const newQty = item.quantity + delta;
@@ -330,19 +461,6 @@
     }
   }
 
-  function updateCartBadges() {
-    const totalCount = CLIENT_STATE.cart.reduce((sum, item) => sum + item.quantity, 0);
-    const badges = document.querySelectorAll('.cart-badge-count');
-    badges.forEach(b => {
-      b.textContent = totalCount;
-      if (totalCount > 0) {
-        b.classList.remove('hidden');
-      } else {
-        b.classList.add('hidden');
-      }
-    });
-  }
-
   // MODAL DE CHECKOUT
   function renderCartModal() {
     const container = document.getElementById('cart-items-container');
@@ -355,7 +473,7 @@
       container.innerHTML = '';
       if (emptyNotice) emptyNotice.classList.remove('hidden');
       if (checkoutForm) checkoutForm.classList.add('hidden');
-      totalEl.textContent = '$0.00';
+      totalEl.textContent = '$0.00 MXN';
       return;
     }
 
@@ -363,22 +481,25 @@
     if (checkoutForm) checkoutForm.classList.remove('hidden');
 
     let total = 0;
-    const products = window.CampusStore.getPublicProducts();
 
     container.innerHTML = CLIENT_STATE.cart.map(item => {
-      const prod = products.find(p => p.id === item.productId);
+      // Leemos de allProductsFromCloud
+      const prod = allProductsFromCloud.find(p => p.id === item.productId);
       if (!prod) return '';
-      const subtotal = prod.price * item.quantity;
+      
+      // Convertimos el precio a número y usamos prod.precio
+      const precioUnitario = parseFloat(prod.precio) || 0;
+      const subtotal = precioUnitario * item.quantity;
       total += subtotal;
 
       return `
         <div class="flex items-center justify-between p-3 bg-slate-900/90 rounded-xl border border-slate-800">
           <div class="flex items-center space-x-3">
-            <img src="${prod.image}" class="w-12 h-12 rounded-lg object-cover bg-slate-800" onerror="this.src='https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&auto=format&fit=crop&q=80'">
+            <img src="${prod.imagen || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&auto=format&fit=crop&q=80'}" class="w-12 h-12 rounded-lg object-cover bg-slate-800" onerror="this.src='https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&auto=format&fit=crop&q=80'">
             <div>
-              <h4 class="font-bold text-xs sm:text-sm text-slate-100 line-clamp-1">${prod.name}</h4>
-              <p class="text-xs text-amber-400 font-semibold">$${prod.price.toFixed(2)} c/u</p>
-              <p class="text-[10px] text-slate-400">Vendedor: ${prod.seller ? prod.seller.name : 'Estudiante'}</p>
+              <h4 class="font-bold text-xs sm:text-sm text-slate-100 line-clamp-1">${prod.nombre}</h4>
+              <p class="text-xs text-amber-400 font-semibold">$${precioUnitario.toFixed(2)} c/u</p>
+              <p class="text-[10px] text-slate-400">Vendedor: ${prod.vendedorNombre || 'Estudiante CU2'}</p>
             </div>
           </div>
 
@@ -398,11 +519,12 @@
 
     totalEl.textContent = `$${total.toFixed(2)} MXN`;
 
+    // Reasignamos los event listeners a los nuevos botones
     container.querySelectorAll('.btn-qty-minus').forEach(b => {
-      b.addEventListener('click', () => updateCartQuantity(b.getAttribute('data-id'), -1));
+      b.addEventListener('click', () => updateCartQuantityCloud(b.getAttribute('data-id'), -1));
     });
     container.querySelectorAll('.btn-qty-plus').forEach(b => {
-      b.addEventListener('click', () => updateCartQuantity(b.getAttribute('data-id'), 1));
+      b.addEventListener('click', () => updateCartQuantityCloud(b.getAttribute('data-id'), 1));
     });
     container.querySelectorAll('.btn-cart-remove').forEach(b => {
       b.addEventListener('click', () => removeFromCart(b.getAttribute('data-id')));

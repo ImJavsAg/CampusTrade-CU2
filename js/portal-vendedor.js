@@ -187,40 +187,57 @@
     if (btnCloseModal) btnCloseModal.addEventListener('click', closeProductModal);
     if (btnCancelModal) btnCancelModal.addEventListener('click', closeProductModal);
 
-    // Formulario de Agregar Producto
+    // Formulario de Agregar Producto (Conectado a Firebase)
     const formProduct = document.getElementById('form-modal-product');
     if (formProduct) {
-      formProduct.addEventListener('submit', (e) => {
+      formProduct.addEventListener('submit', async (e) => {
         e.preventDefault();
-        if (!currentSeller) return;
+        
+        // Filtro de seguridad por si expiró la sesión
+        if (!currentSeller) {
+            alert("Tu sesión ha expirado. Por favor, inicia sesión nuevamente.");
+            window.location.reload();
+            return;
+        }
 
-        const name = document.getElementById('prod-name').value;
-        const category = document.getElementById('prod-category').value;
-        const price = document.getElementById('prod-price').value;
-        const unit = document.getElementById('prod-unit').value;
-        const stock = document.getElementById('prod-stock').value;
-        const image = document.getElementById('prod-image').value;
-        const description = document.getElementById('prod-description').value;
-        const tags = document.getElementById('prod-tags').value.split(',');
+        // Construir el objeto combinando los datos del formulario + datos del vendedor
+        const nuevoProducto = {
+            // Datos del producto
+            nombre: document.getElementById('prod-name').value,
+            categoria: document.getElementById('prod-category').value,
+            precio: parseFloat(document.getElementById('prod-price').value),
+            unidad: document.getElementById('prod-unit').value,
+            stock: parseInt(document.getElementById('prod-stock').value),
+            imagen: document.getElementById('prod-image').value || '', 
+            descripcion: document.getElementById('prod-description').value,
+            etiquetas: document.getElementById('prod-tags').value,
+            
+            // Datos del vendedor inyectados
+            vendedorId: currentSeller.id || currentSeller.studentId,
+            vendedorNombre: currentSeller.name,
+            vendedorWhatsapp: currentSeller.whatsapp,
+            vendedorEdificio: document.getElementById('dash-location-building')?.value || currentSeller.defaultBuilding,
+            
+            // Marca de tiempo de Firestore
+            fechaCreacion: firebase.firestore.FieldValue.serverTimestamp() 
+        };
 
-        const res = window.CampusStore.createProduct(currentSeller.id, {
-          name,
-          category,
-          price,
-          unit,
-          stock,
-          image,
-          description,
-          tags
-        });
+        try {
+            // Enviar a la colección "productos" en Firebase
+            const docRef = await db.collection("productos").add(nuevoProducto);
+            
+            console.log("¡Éxito! Producto guardado con la info del vendedor. ID: ", docRef.id);
+            
+            // Limpiar UI y mostrar notificación
+            closeProductModal();
+            showNotificationToast(`¡"${nuevoProducto.nombre}" publicado en el catálogo público de CU2!`, 'success');
+            
+            // Aquí llamarías a una función para refrescar la lista de productos del vendedor desde Firebase
+            // renderSellerProductsFromCloud(); 
 
-        if (res.success) {
-          closeProductModal();
-          showNotificationToast(`¡"${name}" publicado en el catálogo público de CU2!`, 'success');
-          renderSellerProducts();
-          updateKPIs();
-        } else {
-          alert('⚠️ ERROR DE PUBLICACIÓN:\n\n' + res.error);
+        } catch (error) {
+            console.error("Error al guardar en Firebase: ", error);
+            alert("Hubo un error al publicar el producto. Revisa tu conexión a internet.");
         }
       });
     }
