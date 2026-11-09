@@ -487,6 +487,10 @@
         if (!Number.isInteger(stock) || stock < 0 || stock >= 10000) return alert('Escribe un stock válido (entero entre 0 y 9999).');
         if (descripcion.length > 500) return alert('La descripción no puede pasar de 500 caracteres.');
 
+        const imagenUrl = document.getElementById('prod-image').value.trim();
+        if (imagenUrl && !/^https?:\/\/\S+$/i.test(imagenUrl)) return alert('La imagen debe ser un enlace que empiece con http:// o https://');
+        if (imagenUrl.length > 2000) return alert('El enlace de la imagen es demasiado largo.');
+
         // Filtro ético y legal BUAP
         const text = `${nombre} ${descripcion}`.toLowerCase();
         const found = FORBIDDEN_KEYWORDS.find((w) => text.includes(w));

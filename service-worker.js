@@ -3,7 +3,7 @@
 // - CDN estáticos (Tailwind, fuentes, Font Awesome, Firebase SDK): cache-first
 // - Firestore y demás APIs: se dejan pasar sin interceptar
 
-const CACHE_NAME = 'campustrade-cu2-v2'; // Súbelo a v3, v4... cuando cambies este archivo
+const CACHE_NAME = 'campustrade-cu2-v3'; // Súbelo a v4, v5... cuando cambies este archivo
 
 const ASSETS_TO_CACHE = [
   './',
@@ -11,7 +11,6 @@ const ASSETS_TO_CACHE = [
   './portal-vendedor.html',
   './css/styles.css',
   './js/app.js',
-  './js/store.js',
   './js/portal-vendedor.js',
   './js/initial-data.js',
   './js/map-data.js',

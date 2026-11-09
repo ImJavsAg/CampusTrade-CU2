@@ -13,33 +13,66 @@
     currentView: 'catalog'
   };
 
-  let allProductsFromCloud = []; // Variable global para Firebase
+  let allProductsFromCloud = []; // Productos en tiempo real desde Firestore
+  let productsLoaded = false;    // true cuando llega el primer snapshot
+
+  const FALLBACK_IMG = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&auto=format&fit=crop&q=80';
+
+  // ==========================================================
+  // UTILIDADES DE SEGURIDAD (los datos vienen de una base pública)
+  // ==========================================================
+  function esc(value) {
+    return String(value ?? '').replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
+  // Solo permite imágenes http(s); evita esquemas como javascript:
+  function safeImg(url) {
+    const u = String(url || '').trim();
+    return /^https?:\/\//i.test(u) ? u : FALLBACK_IMG;
+  }
+
+  function onlyDigits(value) {
+    return String(value ?? '').replace(/[^0-9]/g, '');
+  }
+
+  function toMillis(ts) {
+    return ts && typeof ts.toMillis === 'function' ? ts.toMillis() : Date.now();
+  }
+
+  function buildingLabel(id) {
+    const b = (window.CU2_BUILDINGS || []).find((x) => x.id === id);
+    return b ? b.code : (id || 'CU2');
+  }
 
   // CARGAR CARRITO PERSISTENTE
   function loadCart() {
     try {
       const stored = localStorage.getItem('campustrade_cart_v2');
-      if (stored) CLIENT_STATE.cart = JSON.parse(stored);
+      const parsed = stored ? JSON.parse(stored) : [];
+      CLIENT_STATE.cart = Array.isArray(parsed) ? parsed : [];
     } catch (e) {
       CLIENT_STATE.cart = [];
     }
   }
 
   function saveCart() {
-    localStorage.setItem('campustrade_cart_v2', JSON.stringify(CLIENT_STATE.cart));
+    try {
+      localStorage.setItem('campustrade_cart_v2', JSON.stringify(CLIENT_STATE.cart));
+    } catch (e) { /* modo privado / sin espacio: el carrito sigue en memoria */ }
     updateCartBadges();
   }
 
   // INICIALIZACIÓN
   document.addEventListener('DOMContentLoaded', () => {
-    window.CampusStore.init();
     loadCart();
     renderCategories();
     startProductListener(); // Inicia la escucha a Firebase
     updateCartBadges();
     setupEventListeners();
     setupBuildingSelector();
-    updateSellerNavState();
+    watchSellerSession();
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./service-worker.js').catch(err => {
@@ -48,24 +81,27 @@
     }
   });
 
-  function updateSellerNavState() {
-    const currentSeller = window.CampusStore.getCurrentSeller();
+  // Botón del portal: muestra el nombre si hay una sesión de Firebase Auth activa
+  function watchSellerSession() {
     const btnNavSeller = document.getElementById('btn-nav-seller');
     if (!btnNavSeller) return;
+    btnNavSeller.href = './portal-vendedor.html';
 
-    if (currentSeller) {
-      btnNavSeller.innerHTML = `
-        <i class="fas fa-user-circle text-amber-400"></i>
-        <span>Mi Portal (${currentSeller.name.split(' ')[0]})</span>
-      `;
-      btnNavSeller.href = './portal-vendedor.html';
-    } else {
-      btnNavSeller.innerHTML = `
-        <i class="fas fa-hand-holding-usd text-amber-400"></i>
-        <span>Portal Vendedores</span>
-      `;
-      btnNavSeller.href = './portal-vendedor.html';
-    }
+    if (typeof auth === 'undefined') return;
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        const first = esc((user.displayName || user.email || '').split(/[ @]/)[0]);
+        btnNavSeller.innerHTML = `
+          <i class="fas fa-user-circle text-slate-950"></i>
+          <span>Mi Portal${first ? ' (' + first + ')' : ''}</span>
+        `;
+      } else {
+        btnNavSeller.innerHTML = `
+          <i class="fas fa-hand-holding-usd text-slate-950"></i>
+          <span>Portal Vendedores</span>
+        `;
+      }
+    });
   }
 
   // CATEGORÍAS
@@ -96,20 +132,52 @@
 
   // FIREBASE: ESCUCHA DE PRODUCTOS
   function startProductListener() {
-    if (typeof db !== 'undefined') {
-      db.collection("productos").onSnapshot((querySnapshot) => {
-        allProductsFromCloud = [];
-        querySnapshot.forEach((doc) => {
-          allProductsFromCloud.push({ id: doc.id, ...doc.data() });
-        });
-        renderProductsView();
-        renderMapPins(); // Actualizar pines del mapa
-      }, (error) => {
-        console.error("Error al escuchar productos: ", error);
-      });
-    } else {
-      console.warn("Firebase no está inicializado.");
+    if (typeof db === 'undefined') {
+      console.warn('Firebase no está inicializado.');
+      showGridMessage('No se pudo conectar con el catálogo. Recarga la página.');
+      return;
     }
+
+    db.collection('productos').onSnapshot((querySnapshot) => {
+      allProductsFromCloud = [];
+      querySnapshot.forEach((doc) => {
+        allProductsFromCloud.push({ id: doc.id, ...doc.data() });
+      });
+      allProductsFromCloud.sort((a, b) => toMillis(b.fechaCreacion) - toMillis(a.fechaCreacion));
+      productsLoaded = true;
+
+      pruneCart();
+      renderProductsView();
+      renderMapPins();
+      if (!document.getElementById('cart-modal')?.classList.contains('hidden')) renderCartModal();
+    }, (error) => {
+      console.error('Error al escuchar productos: ', error);
+      showGridMessage('No se pudo cargar el catálogo (' + (error.code || error.message) + ').');
+    });
+  }
+
+  function showGridMessage(msg) {
+    const grid = document.getElementById('products-grid');
+    const emptyState = document.getElementById('products-empty');
+    if (grid) grid.innerHTML = '';
+    if (emptyState) {
+      emptyState.classList.remove('hidden');
+      emptyState.innerHTML = `<p class="text-xs text-red-300 font-semibold">${esc(msg)}</p>`;
+    }
+  }
+
+  // Quita del carrito productos borrados o agotados y ajusta cantidades al stock actual
+  function pruneCart() {
+    if (!productsLoaded) return;
+    let changed = false;
+    CLIENT_STATE.cart = CLIENT_STATE.cart.filter((item) => {
+      const p = allProductsFromCloud.find((x) => x.id === item.productId);
+      if (!p || (parseInt(p.stock, 10) || 0) <= 0) { changed = true; return false; }
+      const stock = parseInt(p.stock, 10) || 0;
+      if (item.quantity > stock) { item.quantity = stock; changed = true; }
+      return true;
+    });
+    if (changed) saveCart();
   }
 
   // RENDERIZADO DE LA VISTA
@@ -123,9 +191,9 @@
       const matchesCat = CLIENT_STATE.activeCategory === 'all' || product.categoria === CLIENT_STATE.activeCategory;
       const q = CLIENT_STATE.searchQuery.toLowerCase().trim();
       const matchesSearch = !q || 
-        product.nombre.toLowerCase().includes(q) ||
-        (product.descripcion && product.descripcion.toLowerCase().includes(q)) ||
-        (product.etiquetas && product.etiquetas.toLowerCase().includes(q));
+        String(product.nombre || '').toLowerCase().includes(q) ||
+        String(product.descripcion || '').toLowerCase().includes(q) ||
+        String(product.etiquetas || '').toLowerCase().includes(q);
       
       const matchesBuilding = !CLIENT_STATE.selectedBuildingId || product.vendedorEdificio === CLIENT_STATE.selectedBuildingId;
 
@@ -182,19 +250,20 @@
     if (emptyState) emptyState.classList.add('hidden');
 
     grid.innerHTML = filtered.map(prod => {
-      const inStock = prod.stock > 0;
+      const stock = parseInt(prod.stock, 10) || 0;
+      const inStock = stock > 0;
       const precio = parseFloat(prod.precio) || 0;
       
       return `
         <div class="glass-card rounded-2xl overflow-hidden flex flex-col justify-between group">
           <div class="relative">
-            <img src="${prod.imagen || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&auto=format&fit=crop&q=80'}" alt="${prod.nombre}" class="w-full h-44 object-cover object-center group-hover:scale-105 transition duration-500 bg-slate-900" onerror="this.src='https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&auto=format&fit=crop&q=80'">
+            <img src="${esc(safeImg(prod.imagen))}" alt="${esc(prod.nombre)}" class="w-full h-44 object-cover object-center group-hover:scale-105 transition duration-500 bg-slate-900" onerror="this.onerror=null;this.src='${FALLBACK_IMG}'">
             
             <span class="absolute top-3 left-3 bg-slate-950/90 backdrop-blur-md text-amber-400 font-extrabold text-sm px-2.5 py-1 rounded-lg border border-amber-500/30">
               $${precio.toFixed(2)} MXN
             </span>
             <span class="absolute top-3 right-3 text-xs px-2.5 py-1 rounded-full font-semibold ${inStock ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-500/40' : 'bg-red-950/80 text-red-300 border border-red-500/40'}">
-              ${inStock ? `${prod.stock} disponibles` : 'Agotado'}
+              ${inStock ? `${stock} disponibles` : 'Agotado'}
             </span>
           </div>
 
@@ -202,21 +271,21 @@
             <div>
               <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
                 <span class="truncate font-semibold text-slate-200">
-                  <i class="fas fa-user-circle text-amber-400 mr-1"></i>${prod.vendedorNombre || 'Estudiante'}
+                  <i class="fas fa-user-circle text-amber-400 mr-1"></i>${esc(prod.vendedorNombre || 'Estudiante')}
                 </span>
-                <span class="text-[10px] text-sky-400 font-medium uppercase">${prod.vendedorEdificio || 'CU2'}</span>
+                <span class="text-[10px] text-sky-400 font-medium uppercase">${esc(buildingLabel(prod.vendedorEdificio))}</span>
               </div>
-              <h3 class="font-bold text-slate-100 text-base leading-snug line-clamp-1 mb-1">${prod.nombre}</h3>
-              <p class="text-xs text-slate-400 line-clamp-2 mb-3">${prod.descripcion || 'Producto de CU2.'}</p>
+              <h3 class="font-bold text-slate-100 text-base leading-snug line-clamp-1 mb-1">${esc(prod.nombre)}</h3>
+              <p class="text-xs text-slate-400 line-clamp-2 mb-3">${esc(prod.descripcion || 'Producto de CU2.')}</p>
             </div>
 
             <div class="flex items-center gap-2 pt-2 border-t border-slate-800/80">
-              <button class="btn-quick-order flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition active:scale-95 shadow-lg shadow-amber-500/20" data-id="${prod.id}">
-                <i class="fas fa-shopping-basket"></i> Pedir
+              <button class="btn-quick-order flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition active:scale-95 shadow-lg shadow-amber-500/20" data-id="${esc(prod.id)}" ${inStock ? '' : 'disabled'}>
+                <i class="fas fa-shopping-basket"></i> ${inStock ? 'Pedir' : 'Agotado'}
               </button>
               
-              ${prod.vendedorWhatsapp ? `
-                <button class="btn-whatsapp bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 py-2 px-3 rounded-xl text-xs flex items-center justify-center transition" data-whatsapp="${prod.vendedorWhatsapp}" data-name="${prod.nombre}">
+              ${onlyDigits(prod.vendedorWhatsapp) ? `
+                <button class="btn-whatsapp bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 py-2 px-3 rounded-xl text-xs flex items-center justify-center transition" data-whatsapp="${esc(onlyDigits(prod.vendedorWhatsapp))}" data-name="${esc(prod.nombre)}">
                   <i class="fab fa-whatsapp text-sm"></i>
                 </button>
               ` : ''}
@@ -235,7 +304,7 @@
         const num = btn.getAttribute('data-whatsapp');
         const prodName = btn.getAttribute('data-name');
         const url = `https://wa.me/${num}?text=${encodeURIComponent(`Hola! Vi tu producto "${prodName}" en CampusTrade CU2. ¿Sigue disponible?`)}`;
-        window.open(url, '_blank');
+        window.open(url, '_blank', 'noopener');
       });
     });
   }
@@ -244,19 +313,24 @@
   function addToCartCloud(productId) {
     const product = allProductsFromCloud.find(p => p.id === productId);
     if (!product) return;
-    if (product.stock <= 0) {
+    const stock = parseInt(product.stock, 10) || 0;
+    if (stock <= 0) {
       showToast('Producto agotado', 'warning');
+      return;
+    }
+    if (!product.vendedorId) {
+      showToast('Este producto no tiene vendedor asignado', 'warning');
       return;
     }
     const existing = CLIENT_STATE.cart.find(item => item.productId === productId);
     if (existing) {
-      if (existing.quantity >= product.stock) {
-        showToast(`Stock máximo (${product.stock})`, 'warning');
+      if (existing.quantity >= stock) {
+        showToast(`Stock máximo (${stock})`, 'warning');
         return;
       }
       existing.quantity += 1;
     } else {
-      CLIENT_STATE.cart.push({ productId: product.id, quantity: 1, sellerId: product.vendedorId || 'anonimo' });
+      CLIENT_STATE.cart.push({ productId: product.id, quantity: 1, sellerId: product.vendedorId });
     }
     saveCart();
     showToast(`¡"${product.nombre}" añadido!`, 'success');
@@ -272,9 +346,10 @@
     const item = CLIENT_STATE.cart.find(i => i.productId === productId);
     const product = allProductsFromCloud.find(p => p.id === productId);
     if (!item || !product) return;
+    const stock = parseInt(product.stock, 10) || 0;
     const newQty = item.quantity + delta;
     if (newQty <= 0) removeFromCart(productId);
-    else if (newQty > product.stock) showToast(`Stock máximo (${product.stock})`, 'warning');
+    else if (newQty > stock) showToast(`Stock máximo (${stock})`, 'warning');
     else { item.quantity = newQty; saveCart(); renderCartModal(); }
   }
 
@@ -313,19 +388,19 @@
       return `
         <div class="flex items-center justify-between p-3 bg-slate-900/90 rounded-xl border border-slate-800">
           <div class="flex items-center space-x-3">
-            <img src="${prod.imagen || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&auto=format&fit=crop&q=80'}" class="w-12 h-12 rounded-lg object-cover">
+            <img src="${esc(safeImg(prod.imagen))}" alt="" class="w-12 h-12 rounded-lg object-cover" onerror="this.onerror=null;this.src='${FALLBACK_IMG}'">
             <div>
-              <h4 class="font-bold text-sm text-slate-100">${prod.nombre}</h4>
+              <h4 class="font-bold text-sm text-slate-100">${esc(prod.nombre)}</h4>
               <p class="text-xs text-amber-400">$${precio.toFixed(2)} c/u</p>
             </div>
           </div>
           <div class="flex items-center space-x-2">
             <div class="flex bg-slate-800 rounded-lg border border-slate-700">
-              <button class="btn-qty-minus px-2 py-1 text-slate-400" data-id="${prod.id}">-</button>
+              <button class="btn-qty-minus px-2 py-1 text-slate-400" data-id="${esc(prod.id)}">-</button>
               <span class="text-xs font-bold px-2 text-white flex items-center">${item.quantity}</span>
-              <button class="btn-qty-plus px-2 py-1 text-slate-400" data-id="${prod.id}">+</button>
+              <button class="btn-qty-plus px-2 py-1 text-slate-400" data-id="${esc(prod.id)}">+</button>
             </div>
-            <button class="btn-cart-remove text-red-400 p-1.5" data-id="${prod.id}"><i class="fas fa-trash-alt"></i></button>
+            <button class="btn-cart-remove text-red-400 p-1.5" data-id="${esc(prod.id)}"><i class="fas fa-trash-alt"></i></button>
           </div>
         </div>
       `;
@@ -356,65 +431,160 @@
     });
   }
 
-  // CHECKOUT
-  function handleProcessOrder(e) {
-    e.preventDefault();
-    if (CLIENT_STATE.cart.length === 0) return;
+  // CHECKOUT: un pedido en Firestore por cada vendedor, guardados juntos en un batch atómico
+  let placingOrder = false;
 
-    const customerName = document.getElementById('checkout-customer-name')?.value.trim() || 'Estudiante';
-    const customerContact = document.getElementById('checkout-customer-contact')?.value.trim() || '';
-    const deliveryPoint = document.getElementById('checkout-delivery-point')?.value || 'EMA 3';
-    const deliveryTime = document.getElementById('checkout-delivery-time')?.value || 'Inmediato';
-    const paymentMethod = document.getElementById('checkout-payment-method')?.value || 'Efectivo';
-    const notes = document.getElementById('checkout-notes')?.value.trim() || '';
-
-    const orderItems = [];
-    let total = 0;
-    let mainSellerId = null;
-    let mainSellerWhatsapp = '';
-
-    CLIENT_STATE.cart.forEach(item => {
-      const p = allProductsFromCloud.find(prod => prod.id === item.productId);
-      if (p) {
-        orderItems.push({ id: p.id, name: p.nombre, quantity: item.quantity, price: parseFloat(p.precio) });
-        total += parseFloat(p.precio) * item.quantity;
-        if (!mainSellerId) {
-          mainSellerId = p.vendedorId;
-          mainSellerWhatsapp = p.vendedorWhatsapp || '';
-        }
-      }
-    });
-
-    const res = window.CampusStore.createOrder({
-      sellerId: mainSellerId, customerName, customerContact, items: orderItems, total, deliveryPoint, deliveryTime, paymentMethod, notes
-    });
-
-    if (res.success) {
-      CLIENT_STATE.cart = [];
-      saveCart();
-      closeModal('cart-modal');
-      showOrderSuccess(res.order, mainSellerWhatsapp);
-    }
+  function newOrderCode() {
+    return 'LOB-' + String(Math.floor(1000 + Math.random() * 9000));
   }
 
-  function showOrderSuccess(order, whatsappNumber) {
+  async function handleProcessOrder(e) {
+    e.preventDefault();
+    if (placingOrder) return;
+    if (CLIENT_STATE.cart.length === 0) return;
+    if (typeof db === 'undefined') {
+      showToast('Sin conexión con Firebase. Recarga la página.', 'warning');
+      return;
+    }
+
+    const customerName = (document.getElementById('checkout-customer-name')?.value.trim() || 'Estudiante').slice(0, 80);
+    const customerContact = (document.getElementById('checkout-customer-contact')?.value.trim() || '').slice(0, 30);
+    const deliveryPoint = (document.getElementById('checkout-delivery-point')?.value || 'EMA 3').slice(0, 150);
+    const deliveryTime = (document.getElementById('checkout-delivery-time')?.value || 'Inmediato').slice(0, 60);
+    const paymentMethod = (document.getElementById('checkout-payment-method')?.value || 'Efectivo').slice(0, 40);
+    const notes = (document.getElementById('checkout-notes')?.value.trim() || '').slice(0, 300);
+
+    // Agrupar por vendedor usando los datos ACTUALES de la nube
+    const bySeller = new Map();
+    CLIENT_STATE.cart.forEach((item) => {
+      const p = allProductsFromCloud.find((prod) => prod.id === item.productId);
+      if (!p || !p.vendedorId) return;
+      const stock = parseInt(p.stock, 10) || 0;
+      const qty = Math.min(item.quantity, stock);
+      if (qty <= 0) return;
+
+      if (!bySeller.has(p.vendedorId)) {
+        bySeller.set(p.vendedorId, { whatsapp: p.vendedorWhatsapp || '', sellerName: p.vendedorNombre || 'Vendedor', items: [], total: 0 });
+      }
+      const group = bySeller.get(p.vendedorId);
+      const precio = parseFloat(p.precio) || 0;
+      group.items.push({ productoId: p.id, nombre: String(p.nombre || '').slice(0, 120), precio, cantidad: qty });
+      group.total += precio * qty;
+    });
+
+    if (bySeller.size === 0) {
+      showToast('Tu carrito ya no tiene productos disponibles.', 'warning');
+      pruneCart();
+      renderCartModal();
+      return;
+    }
+    if (bySeller.size > 8) {
+      showToast('Haz tu pedido en partes: máximo 8 vendedores distintos por compra.', 'warning');
+      return;
+    }
+
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    placingOrder = true;
+    if (submitBtn) submitBtn.disabled = true;
+
+    const batch = db.batch();
+    const createdOrders = [];
+
+    bySeller.forEach((group, sellerId) => {
+      const code = newOrderCode();
+      const ref = db.collection('pedidos').doc();
+      batch.set(ref, {
+        codigo: code,
+        vendedorId: sellerId,
+        compradorNombre: customerName,
+        compradorContacto: customerContact,
+        items: group.items,
+        total: Math.round(group.total * 100) / 100,
+        puntoEntrega: deliveryPoint,
+        horarioEntrega: deliveryTime,
+        metodoPago: paymentMethod,
+        notas: notes,
+        estado: 'Pendiente',
+        stockDescontado: false, // el vendedor descuenta el inventario al aceptar el pedido
+        fechaCreacion: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      createdOrders.push({
+        code, sellerName: group.sellerName, whatsapp: group.whatsapp,
+        items: group.items, total: Math.round(group.total * 100) / 100
+      });
+    });
+
+    try {
+      await batch.commit();
+    } catch (error) {
+      console.error('Error al registrar el pedido:', error);
+      const msg = error.code === 'permission-denied'
+        ? 'No se pudo registrar el pedido: los datos no son válidos o el vendedor ya no existe.'
+        : 'No se pudo registrar el pedido (' + (error.code || error.message) + '). Intenta de nuevo.';
+      showToast(msg, 'warning');
+      placingOrder = false;
+      if (submitBtn) submitBtn.disabled = false;
+      return;
+    }
+
+    placingOrder = false;
+    if (submitBtn) submitBtn.disabled = false;
+
+    CLIENT_STATE.cart = [];
+    saveCart();
+    e.target.reset();
+    closeModal('cart-modal');
+    showOrderSuccess(createdOrders, { customerName, deliveryPoint, deliveryTime, paymentMethod, notes });
+  }
+
+  function buildWhatsappLink(order, ctx) {
+    const phone = onlyDigits(order.whatsapp);
+    if (!phone) return '';
+    const itemsSummary = order.items.map((i) => `${i.cantidad}x ${i.nombre} ($${(i.precio * i.cantidad).toFixed(2)})`).join('\n• ');
+    const text = `🐺 *PEDIDO CAMPUSTRADE CU2 (#${order.code})*\n\n¡Hola! Soy *${ctx.customerName}*. Solicitud en campus CU2:\n\n• ${itemsSummary}\n\n💰 *Total:* $${order.total.toFixed(2)} MXN\n📍 *Punto:* ${ctx.deliveryPoint}\n🕒 *Horario:* ${ctx.deliveryTime}\n💳 *Pago:* ${ctx.paymentMethod}\n${ctx.notes ? `📝 *Notas:* ${ctx.notes}\n` : ''}\n¿Me confirmas entrega?`;
+    return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+  }
+
+  function showOrderSuccess(orders, ctx) {
     const modal = document.getElementById('order-success-modal');
     if (!modal) return;
-    document.getElementById('success-order-id').textContent = '#' + order.id;
-    document.getElementById('success-order-total').textContent = `$${order.total.toFixed(2)} MXN`;
-    document.getElementById('success-order-point').textContent = order.deliveryPoint;
-    document.getElementById('success-order-time').textContent = order.deliveryTime;
 
-    const itemsSummary = order.items.map(i => `${i.quantity}x ${i.name} ($${i.price * i.quantity})`).join('\n• ');
-    const waText = encodeURIComponent(`🐺 *PEDIDO CAMPUSTRADE CU2 (#${order.id})*\n\n¡Hola! Soy *${order.customerName}*. Solicitud en campus CU2:\n\n• ${itemsSummary}\n\n💰 *Total:* $${order.total.toFixed(2)} MXN\n📍 *Punto:* ${order.deliveryPoint}\n🕒 *Horario:* ${order.deliveryTime}\n💳 *Pago:* ${order.paymentMethod}\n${order.notes ? `📝 *Notas:* ${order.notes}\n` : ''}\n¿Me confirmas entrega?`);
-    
+    const grandTotal = orders.reduce((sum, o) => sum + o.total, 0);
+    document.getElementById('success-order-id').textContent = orders.map((o) => '#' + o.code).join('  ');
+    document.getElementById('success-order-total').textContent = `$${grandTotal.toFixed(2)} MXN`;
+    document.getElementById('success-order-point').textContent = ctx.deliveryPoint;
+    document.getElementById('success-order-time').textContent = ctx.deliveryTime;
+
+    // Botones de WhatsApp: uno por vendedor
     const waBtn = document.getElementById('btn-whatsapp-order');
     if (waBtn) {
-      const cleanPhone = (whatsappNumber || '').replace(/[^0-9]/g, '');
-      if (cleanPhone) {
-        waBtn.href = `https://wa.me/${cleanPhone}?text=${waText}`;
-        waBtn.classList.remove('hidden');
-      }
+      waBtn.parentElement.querySelectorAll('.extra-wa').forEach((el) => el.remove());
+      waBtn.classList.add('hidden');
+      waBtn.innerHTML = '<i class="fab fa-whatsapp text-lg"></i> Abrir WhatsApp y Confirmar Entrega';
+
+      let first = true;
+      orders.forEach((order) => {
+        const link = buildWhatsappLink(order, ctx);
+        if (!link) return;
+
+        if (first) {
+          waBtn.href = link;
+          waBtn.rel = 'noopener';
+          waBtn.classList.remove('hidden');
+          if (orders.length > 1) {
+            waBtn.innerHTML = `<i class="fab fa-whatsapp text-lg"></i> WhatsApp con ${esc(order.sellerName)}`;
+          }
+          first = false;
+        } else {
+          const extra = document.createElement('a');
+          extra.className = waBtn.className.replace('hidden', '').trim() + ' extra-wa';
+          extra.href = link;
+          extra.target = '_blank';
+          extra.rel = 'noopener';
+          extra.innerHTML = `<i class="fab fa-whatsapp text-lg"></i> WhatsApp con ${esc(order.sellerName)}`;
+          waBtn.insertAdjacentElement('afterend', extra);
+        }
+      });
     }
     openModal('order-success-modal');
   }
@@ -543,7 +713,7 @@
     const toast = document.createElement('div');
     const color = type === 'success' ? 'bg-emerald-900/90 border-emerald-500 text-emerald-200' : type === 'warning' ? 'bg-amber-900/90 border-amber-500 text-amber-200' : 'bg-sky-900/90 border-sky-500 text-sky-200';
     toast.className = `p-3 rounded-xl border backdrop-blur-md text-xs font-semibold shadow-2xl flex items-center space-x-2 pointer-events-auto transition ${color}`;
-    toast.innerHTML = `<i class="fas fa-info-circle"></i><span>${message}</span>`;
+    toast.innerHTML = `<i class="fas fa-info-circle"></i><span>${esc(message)}</span>`;
     container.appendChild(toast);
     setTimeout(() => toast.remove(), 3200);
   }

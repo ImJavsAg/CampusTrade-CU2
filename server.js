@@ -45,13 +45,25 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  let reqPath = decodeURI(req.url.split('?')[0]);
+  let reqPath;
+  try {
+    reqPath = decodeURIComponent(req.url.split('?')[0]);
+  } catch (e) {
+    res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('Solicitud inválida');
+    return;
+  }
   if (reqPath === '/' || reqPath === '') {
     reqPath = '/index.html';
   }
 
-  const safePath = path.normalize(reqPath).replace(/^(\.\.[\/\\])+/, '');
-  const filePath = path.join(PUBLIC_DIR, safePath);
+  const filePath = path.join(PUBLIC_DIR, path.normalize(reqPath));
+  // Bloquea cualquier ruta que salga de la carpeta del proyecto
+  if (!filePath.startsWith(PUBLIC_DIR + path.sep) && filePath !== PUBLIC_DIR) {
+    res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('Acceso denegado');
+    return;
+  }
 
   fs.stat(filePath, (err, stats) => {
     if (err || !stats.isFile()) {

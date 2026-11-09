@@ -8,7 +8,7 @@
 ## 🌟 Descripción General
 **CampusTrade CU2** es una plataforma web y aplicación progresiva (**PWA**) para la comunidad universitaria de la **BUAP en CU2**. Digitaliza, organiza y asegura el microemprendimiento estudiantil con:
 1. **Catálogo Público de Estudiantes:** Los compradores exploran productos reales publicados por vendedores verificados y coordinan entregas en puntos limpios de CU2.
-2. **Portal Apartado y Protegido para Vendedores:** Módulo independiente con autenticación (correo institucional `@alm.buap.mx`, matrícula y contraseña), donde el vendedor gestiona sus pedidos, ganancias e inventario en privado.
+2. **Portal Apartado y Protegido para Vendedores:** Módulo independiente con **Firebase Authentication** (correo institucional `@alm.buap.mx`/`@buap.mx` verificado, matrícula y contraseña), donde el vendedor gestiona sus pedidos, ganancias e inventario en privado. Los pedidos de los compradores llegan en tiempo real desde Firestore.
 3. **Cero Datos de Prueba:** El sistema arranca limpio para producción real. Solo aparecen productos que los estudiantes registrados publiquen.
 4. **Servidor Web Incorporado:** Ejecutable localmente con `start-server.bat` o desplegable en la nube con Netlify / Vercel en un clic.
 
@@ -23,6 +23,7 @@ AntigravityCodeGem/
 ├── server.js                   # Servidor Web HTTP nativo Node.js (puerto 3000)
 ├── start-server.bat            # Script para iniciar el servidor local con un clic
 ├── netlify.toml                # Configuración de despliegue en la nube
+├── firestore.rules             # Reglas de seguridad de Firestore (pegar en Firebase Console)
 ├── manifest.json               # Configuración PWA para instalación móvil
 ├── service-worker.js           # Soporte offline y caché
 ├── assets/
@@ -31,17 +32,21 @@ AntigravityCodeGem/
 ├── css/
 │   └── styles.css              # Estilos responsivos, glassmorphism y pines del mapa
 ├── js/
-│   ├── store.js                # Almacén de datos, cifrado y sesiones de vendedor
 │   ├── map-data.js             # Coordenadas de edificios y puntos limpios de CU2
 │   ├── initial-data.js         # Categorías (sin datos ficticios de prueba)
-│   ├── portal-vendedor.js      # Lógica del dashboard y autenticación de vendedores
-│   └── app.js                  # Lógica del catálogo público, carrito y pedidos
+│   ├── portal-vendedor.js      # Dashboard del vendedor (Firebase Auth + Firestore)
+│   └── app.js                  # Catálogo público, carrito y pedidos (Firestore)
 └── docs/
     ├── PROYECTO_INNOVACION_CAMPUSTRADE_CU2_BUAP.md # Justificación académica
     └── REQUISITOS_Y_PUBLICACION_SITIO_WEB.md       # Requisitos de hosting y dominio
 ```
 
 ---
+
+## 🔐 Configuración de Firebase (una sola vez)
+1. **Authentication → Sign-in method:** activa *Correo electrónico/contraseña*.
+2. **Authentication → Settings → Authorized domains:** agrega tu dominio de Netlify (ej. `campustrade-cu2.netlify.app`).
+3. **Firestore Database → Rules:** pega el contenido de `firestore.rules` y pulsa *Publish*.
 
 ## 💻 Cómo Iniciar el Sitio Web
 
