@@ -121,6 +121,10 @@
             </div>
           </div>
 
+          <div class="text-right -mt-2">
+            <button type="button" id="btn-forgot-password" class="text-[11px] text-amber-400 hover:text-amber-300 font-semibold transition">¿Olvidaste tu contraseña?</button>
+          </div>
+
           <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold py-3 rounded-xl text-xs transition shadow-lg shadow-amber-500/20 active:scale-95">
             Entrar a mi Panel de Ventas <i class="fas fa-arrow-right ml-1"></i>
           </button>
@@ -213,6 +217,19 @@
     <!-- ESTADO 2: PANEL PRIVADO DEL VENDEDOR AUTENTICADO-->
     <!-- ============================================== -->
     <section id="dashboard-section" class="hidden space-y-6">
+
+      <!-- Aviso de correo sin verificar -->
+      <div id="verify-banner" class="hidden p-4 rounded-2xl border border-amber-500/40 bg-amber-950/40 text-xs text-amber-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <i class="fas fa-envelope-circle-check text-amber-400 mr-1.5"></i>
+          <strong>Verifica tu correo para publicar productos.</strong>
+          Enviamos un enlace a <span id="verify-banner-email" class="font-bold"></span>. Revisa también el spam.
+        </div>
+        <div class="flex gap-2 shrink-0">
+          <button type="button" id="btn-resend-verification" class="px-3 py-1.5 rounded-lg border border-amber-500/40 hover:bg-amber-500/10 font-semibold transition">Reenviar correo</button>
+          <button type="button" id="btn-check-verification" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold transition">Ya verifiqué</button>
+        </div>
+      </div>
 
       <!-- Encabezado del Perfil -->
       <div class="glass-panel p-6 rounded-3xl border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -449,6 +466,7 @@
 
   <!-- SCRIPTS DE FIREBASE -->
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 
   <script>
@@ -467,12 +485,14 @@
     
     // Crear la conexión a la base de datos (disponible globalmente)
     const db = firebase.firestore();
+
+    // Autenticación (la usa portal-vendedor.js)
+    const auth = firebase.auth();
   </script>
 
   <!-- SCRIPTS DE LA APLICACIÓN -->
   <script src="./js/map-data.js"></script>
   <script src="./js/initial-data.js"></script>
-  <script src="./js/store.js"></script>
   <!-- Línea corregida: Carga la lógica del vendedor, no la del catálogo público -->
   <script src="./js/portal-vendedor.js"></script>
 </body>
