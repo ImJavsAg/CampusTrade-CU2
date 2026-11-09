@@ -1,4 +1,4 @@
-# PROYECTO DE INNOVACIÓN: "CampusTrade CU2"
+# PROYECTO DE INNOVACIÓN: "LoboTrade CU2"
 ## Plataforma Digital de Economía Colaborativa y Microemprendimiento para la Comunidad BUAP CU2
 
 ---
@@ -7,7 +7,7 @@
 - **Carrera:** Ingeniería en Ciencias de la Computación (ICC)
 - **Institución:** Benemérita Universidad Autónoma de Puebla (BUAP)
 - **Sede:** Complejo Universitario CU2 (Ecocampus Valsequillo)
-- **Nombre de la Innovación:** CampusTrade CU2 ("LoboTrade")
+- **Nombre de la Innovación:** LoboTrade CU2 ("LoboTrade")
 - **Tipo de Proyecto:** Aplicación Web Progresiva (PWA / Mobile-First) con Geolocalización de Campus
 
 ---
@@ -17,7 +17,7 @@ En el contexto universitario de la BUAP —particularmente en el nuevo campus **
 1. **Necesidad de ingresos económicos:** Cientos de alumnos solventan gastos diarios (transporte del Sistema de Transporte Universitario STU, materiales de laboratorio, alimentos y libros) mediante la venta informal de dulces, postres caseros, snacks, papelería y accesorios tecnológicos.
 2. **Ineficiencia en la dinámica tradicional de venta:** Actualmente, el estudiante vendedor debe recorrer pasillo por pasillo o esperar a que alguien pregunte en grupos de WhatsApp o Facebook no estructurados, lo cual distrae el tiempo de estudio, satura chats académicos, expone la mercancía y genera transacciones caóticas en efectivo.
 
-**CampusTrade CU2** nace de la Ingeniería en Ciencias de la Computación como una **innovación tecnológica y social** que transforma el comercio informal en una red colaborativa segura, georreferenciada y regulada.
+**LoboTrade CU2** nace de la Ingeniería en Ciencias de la Computación como una **innovación tecnológica y social** que transforma el comercio informal en una red colaborativa segura, georreferenciada y regulada.
 
 ---
 
@@ -77,7 +77,7 @@ flowchart TD
 
 ### Tabla Comparativa Detallada
 
-| Dimensión | Factor | Descripción | Consecuencia Directa | Solución Implementada en CampusTrade |
+| Dimensión | Factor | Descripción | Consecuencia Directa | Solución Implementada en LoboTrade |
 | :--- | :--- | :--- | :--- | :--- |
 | **Beneficio** | **Visibilidad y Alcance** | El catálogo del alumno no depende de quién camine frente a él; llega a todo CU2 al instante. | Multiplicación de la rotación de inventario y previsión de demanda antes de salir de casa. | Motor de búsqueda, categorización y vista en tiempo real de vendedores activos. |
 | **Beneficio** | **Optimización del Tiempo** | Pedidos programados con anticipación para entregar justo en los 10 minutos de cambio de clase. | Cero pérdidas de asistencia a clases y mayor concentración académica tanto de vendedor como de comprador. | Selector de horarios y puntos de entrega programada (*Pick-up express*). |
@@ -96,7 +96,7 @@ flowchart TD
 - **Georreferenciación Esquemática:** Digitalización del mapa oficial de CU2 con identificación interactiva de nodos (EMA 1 a EMA 11, VAL 1 a 5, FCQ1, FCE1, CCS1, Nodos STU).
 
 ### B. Impacto Económico
-- **Retención del Capital en la Comunidad Estudiantil:** Cada peso gastado en CampusTrade queda en manos de otro estudiante que lo reinvierte en su transporte STU, copias, alimentos o pago de colegiaturas.
+- **Retención del Capital en la Comunidad Estudiantil:** Cada peso gastado en LoboTrade queda en manos de otro estudiante que lo reinvierte en su transporte STU, copias, alimentos o pago de colegiaturas.
 - **Economía Circular y Microemprendimiento:** Capacita a los alumnos en habilidades de comercio electrónico, gestión de inventario, pricing y servicio al cliente desde la universidad.
 
 ### C. Impacto Social y Comunitario
@@ -107,11 +107,11 @@ flowchart TD
 
 ## 5. Trabajo Interdisciplinario
 
-El éxito de CampusTrade requiere la concurrencia de distintas disciplinas universitarias impartidas en la BUAP:
+El éxito de LoboTrade requiere la concurrencia de distintas disciplinas universitarias impartidas en la BUAP:
 
 ```mermaid
 graph LR
-    A["CampusTrade CU2"] --> B["Ing. en Ciencias de la Computación (ICC)"]
+    A["LoboTrade CU2"] --> B["Ing. en Ciencias de la Computación (ICC)"]
     A --> C["Derecho y Ciencias Sociales"]
     A --> D["Administración y Contaduría (FCA)"]
     A --> E["Ciencias de la Salud / Nutrición"]
@@ -139,7 +139,7 @@ graph LR
 ## 6. Retribución Social: Combate a la Deserción Universitaria
 
 La deserción escolar en facultades de ingeniería en México tiene un componente económico crítico: gastos no previstos de transporte diario hacia CU2, comidas y consumibles escolares orillan a muchos estudiantes a abandonar los estudios o retrasar materias.
-- **CampusTrade CU2** ofrece una vía digna, flexible y compatible con los horarios académicos para generar liquidez inmediata.
+- **LoboTrade CU2** ofrece una vía digna, flexible y compatible con los horarios académicos para generar liquidez inmediata.
 - El estudiante no tiene que ausentarse de la universidad para trabajar en un empleo formal de 8 horas con horarios rígidos; puede autofinanciarse dentro de su mismo horario universitario.
 
 ---

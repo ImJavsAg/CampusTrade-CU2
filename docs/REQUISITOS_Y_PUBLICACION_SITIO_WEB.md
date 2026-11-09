@@ -1,5 +1,5 @@
 # GUÍA DE REQUISITOS Y PUBLICACIÓN DEL SITIO WEB EN LA NUBE
-## Proyecto de Innovación "CampusTrade CU2" (BUAP)
+## Proyecto de Innovación "LoboTrade CU2" (BUAP)
 
 ---
 
