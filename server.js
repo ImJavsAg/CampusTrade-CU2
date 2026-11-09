@@ -1,4 +1,4 @@
-// Servidor Web Local para CampusTrade CU2 (BUAP)
+// Servidor Web Local para LoboTrade CU2 (BUAP)
 // No requiere dependencias externas (usa módulos nativos de Node.js)
 
 const http = require('http');
@@ -75,7 +75,7 @@ const server = http.createServer((req, res) => {
         <head><meta charset="utf-8"><title>404 - No Encontrado</title></head>
         <body style="font-family:sans-serif;background:#0b1320;color:#fff;text-align:center;padding:50px;">
           <h1>404 | Página no encontrada</h1>
-          <p>El recurso solicitado no existe en CampusTrade CU2.</p>
+          <p>El recurso solicitado no existe en LoboTrade CU2.</p>
           <a href="/" style="color:#f59e0b;">Volver al Inicio</a>
         </body>
         </html>
@@ -99,7 +99,7 @@ const server = http.createServer((req, res) => {
 server.listen(PORT, '0.0.0.0', () => {
   const localIp = getLocalIp();
   console.log('\n========================================================');
-  console.log('🐺  CAMPUSTRADE CU2 (BUAP) - SERVIDOR WEB EN LÍNEA  🐺');
+  console.log('🐺  LoboTrade CU2 (BUAP) - SERVIDOR WEB EN LÍNEA  🐺');
   console.log('========================================================');
   console.log(`🌐 Acceso local (esta computadora):  http://localhost:${PORT}`);
   console.log(`📱 Acceso en tu red (celulares/CU2): http://${localIp}:${PORT}`);

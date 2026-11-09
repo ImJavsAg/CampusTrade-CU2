@@ -1,4 +1,4 @@
-// Definiciones del sistema CampusTrade CU2 (BUAP)
+// Definiciones del sistema LoboTrade CU2 (BUAP)
 // NO se incluyen datos de prueba: el catálogo inicia limpio para producción real.
 
 window.CATEGORIES = [

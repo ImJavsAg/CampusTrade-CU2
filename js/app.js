@@ -1,4 +1,4 @@
-// CampusTrade CU2 - Aplicación Pública para Compradores y Estudiantes
+// LoboTrade CU2 - Aplicación Pública para Compradores y Estudiantes
 // Conexión directa con Firebase en tiempo real
 
 (function () {
@@ -50,7 +50,7 @@
   // CARGAR CARRITO PERSISTENTE
   function loadCart() {
     try {
-      const stored = localStorage.getItem('campustrade_cart_v2');
+      const stored = localStorage.getItem('LoboTrade_cart_v2');
       const parsed = stored ? JSON.parse(stored) : [];
       CLIENT_STATE.cart = Array.isArray(parsed) ? parsed : [];
     } catch (e) {
@@ -60,7 +60,7 @@
 
   function saveCart() {
     try {
-      localStorage.setItem('campustrade_cart_v2', JSON.stringify(CLIENT_STATE.cart));
+      localStorage.setItem('LoboTrade_cart_v2', JSON.stringify(CLIENT_STATE.cart));
     } catch (e) { /* modo privado / sin espacio: el carrito sigue en memoria */ }
     updateCartBadges();
   }
@@ -304,7 +304,7 @@
       btn.addEventListener('click', () => {
         const num = btn.getAttribute('data-whatsapp');
         const prodName = btn.getAttribute('data-name');
-        const url = `https://wa.me/${num}?text=${encodeURIComponent(`Hola! Vi tu producto "${prodName}" en CampusTrade CU2. ¿Sigue disponible?`)}`;
+        const url = `https://wa.me/${num}?text=${encodeURIComponent(`Hola! Vi tu producto "${prodName}" en LoboTrade CU2. ¿Sigue disponible?`)}`;
         window.open(url, '_blank', 'noopener');
       });
     });
@@ -542,7 +542,7 @@
     const phone = onlyDigits(order.whatsapp);
     if (!phone) return '';
     const itemsSummary = order.items.map((i) => `${i.cantidad}x ${i.nombre} ($${(i.precio * i.cantidad).toFixed(2)})`).join('\n• ');
-    const text = `🐺 *PEDIDO CAMPUSTRADE CU2 (#${order.code})*\n\n¡Hola! Soy *${ctx.customerName}*. Solicitud en campus CU2:\n\n• ${itemsSummary}\n\n💰 *Total:* $${order.total.toFixed(2)} MXN\n📍 *Punto:* ${ctx.deliveryPoint}\n🕒 *Horario:* ${ctx.deliveryTime}\n💳 *Pago:* ${ctx.paymentMethod}\n${ctx.notes ? `📝 *Notas:* ${ctx.notes}\n` : ''}\n¿Me confirmas entrega?`;
+    const text = `🐺 *PEDIDO LoboTrade CU2 (#${order.code})*\n\n¡Hola! Soy *${ctx.customerName}*. Solicitud en campus CU2:\n\n• ${itemsSummary}\n\n💰 *Total:* $${order.total.toFixed(2)} MXN\n📍 *Punto:* ${ctx.deliveryPoint}\n🕒 *Horario:* ${ctx.deliveryTime}\n💳 *Pago:* ${ctx.paymentMethod}\n${ctx.notes ? `📝 *Notas:* ${ctx.notes}\n` : ''}\n¿Me confirmas entrega?`;
     return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
   }
 

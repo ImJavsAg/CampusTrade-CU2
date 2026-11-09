@@ -1,7 +1,7 @@
 @echo off
-title Servidor Web CampusTrade CU2 (BUAP)
+title Servidor Web LoboTrade CU2 (BUAP)
 echo ========================================================
-echo   Iniciando Servidor Web CampusTrade CU2 BUAP...
+echo   Iniciando Servidor Web LoboTrade CU2 BUAP...
 echo ========================================================
 
 set NODE_PATH="%APPDATA%\Antigravity\bin\agy-node.cmd"

@@ -1,7 +1,7 @@
 @echo off
 title Sincronizar Cambios con GitHub y Netlify
 echo ========================================================
-echo    Subir y Actualizar CampusTrade CU2 en GitHub y Netlify
+echo    Subir y Actualizar LoboTrade CU2 en GitHub y Netlify
 echo ========================================================
 
 git status

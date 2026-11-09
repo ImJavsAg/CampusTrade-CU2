@@ -1,9 +1,9 @@
-// CampusTrade CU2 - Service Worker
+// LoboTrade CU2 - Service Worker
 // - HTML/JS/CSS propios: network-first (siempre intenta la versión nueva; la caché solo es respaldo offline)
 // - CDN estáticos (Tailwind, fuentes, Font Awesome, Firebase SDK): cache-first
 // - Firestore y demás APIs: se dejan pasar sin interceptar
 
-const CACHE_NAME = 'campustrade-cu2-v4'; // Súbelo a v5, v6... cuando cambies este archivo
+const CACHE_NAME = 'LoboTrade-cu2-v4'; // Súbelo a v5, v6... cuando cambies este archivo
 
 const ASSETS_TO_CACHE = [
   './',

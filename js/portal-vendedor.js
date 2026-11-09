@@ -1,4 +1,4 @@
-// CampusTrade CU2 - Lógica del Portal Exclusivo del Vendedor
+// LoboTrade CU2 - Lógica del Portal Exclusivo del Vendedor
 // Autenticación real (Firebase Authentication), perfil de vendedor, productos y pedidos en Firestore.
 // Ya no depende de store.js ni de localStorage.
 
@@ -723,7 +723,7 @@
                           'bg-amber-950 text-amber-300 border-amber-500/40';
 
       const customerPhone = onlyDigits(order.compradorContacto);
-      const waMsg = encodeURIComponent(`Hola ${order.compradorNombre}, sobre tu pedido #${order.codigo} en CampusTrade CU2...`);
+      const waMsg = encodeURIComponent(`Hola ${order.compradorNombre}, sobre tu pedido #${order.codigo} en LoboTrade CU2...`);
       const items = Array.isArray(order.items) ? order.items : [];
 
       return `

@@ -1,4 +1,4 @@
-# 🐺 CampusTrade CU2 (BUAP)
+# 🐺 LoboTrade CU2 (BUAP)
 > **Proyecto de Innovación Tecnológica y Retribución Social**  
 > **Carrera:** Ingeniería en Ciencias de la Computación (ICC) — Benemérita Universidad Autónoma de Puebla  
 > **Sede:** Ciudad Universitaria 2 (CU2 - Ecocampus Valsequillo)
@@ -6,7 +6,7 @@
 ---
 
 ## 🌟 Descripción General
-**CampusTrade CU2** es una plataforma web y aplicación progresiva (**PWA**) para la comunidad universitaria de la **BUAP en CU2**. Digitaliza, organiza y asegura el microemprendimiento estudiantil con:
+**LoboTrade CU2** es una plataforma web y aplicación progresiva (**PWA**) para la comunidad universitaria de la **BUAP en CU2**. Digitaliza, organiza y asegura el microemprendimiento estudiantil con:
 1. **Catálogo Público de Estudiantes:** Los compradores exploran productos reales publicados por vendedores verificados y coordinan entregas en puntos limpios de CU2.
 2. **Portal Apartado y Protegido para Vendedores:** Módulo independiente con **Firebase Authentication** (correo institucional `@alm.buap.mx`/`@buap.mx` verificado, matrícula y contraseña), donde el vendedor gestiona sus pedidos, ganancias e inventario en privado. Los pedidos de los compradores llegan en tiempo real desde Firestore.
 3. **Cero Datos de Prueba:** El sistema arranca limpio para producción real. Solo aparecen productos que los estudiantes registrados publiquen.
@@ -28,7 +28,7 @@ AntigravityCodeGem/
 ├── service-worker.js           # Soporte offline y caché
 ├── assets/
 │   ├── cu2-map.jpg             # Mapa oficial de CU2 Valsequillo
-│   └── logo.svg                # Logotipo oficial Lobo CampusTrade
+│   └── logo.svg                # Logotipo oficial Lobo LoboTrade
 ├── css/
 │   └── styles.css              # Estilos responsivos, glassmorphism y pines del mapa
 ├── js/
@@ -37,7 +37,7 @@ AntigravityCodeGem/
 │   ├── portal-vendedor.js      # Dashboard del vendedor (Firebase Auth + Firestore)
 │   └── app.js                  # Catálogo público, carrito y pedidos (Firestore)
 └── docs/
-    ├── PROYECTO_INNOVACION_CAMPUSTRADE_CU2_BUAP.md # Justificación académica
+    ├── PROYECTO_INNOVACION_LoboTrade_CU2_BUAP.md # Justificación académica
     └── REQUISITOS_Y_PUBLICACION_SITIO_WEB.md       # Requisitos de hosting y dominio
 ```
 
@@ -45,7 +45,7 @@ AntigravityCodeGem/
 
 ## 🔐 Configuración de Firebase (una sola vez)
 1. **Authentication → Sign-in method:** activa *Correo electrónico/contraseña*.
-2. **Authentication → Settings → Authorized domains:** agrega tu dominio de Netlify (ej. `campustrade-cu2.netlify.app`).
+2. **Authentication → Settings → Authorized domains:** agrega tu dominio de Netlify (ej. `LoboTrade-cu2.netlify.app`).
 3. **Firestore Database → Rules:** pega el contenido de `firestore.rules` y pulsa *Publish*.
 
 ## 💻 Cómo Iniciar el Sitio Web
@@ -59,4 +59,4 @@ Haz doble clic en [start-server.bat](file:///c:/Users/javie/Documents/Antigravit
 ### 2. Publicar en Internet Gratis (Netlify)
 1. Ve a [https://app.netlify.com/drop](https://app.netlify.com/drop).
 2. Arrastra la carpeta del proyecto.
-3. Obtendrás tu URL pública con HTTPS gratis (ej. `https://campustrade-cu2.netlify.app`) en 30 segundos.
+3. Obtendrás tu URL pública con HTTPS gratis (ej. `https://LoboTrade-cu2.netlify.app`) en 30 segundos.

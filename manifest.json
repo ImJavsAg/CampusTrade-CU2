@@ -1,6 +1,6 @@
 {
-  "name": "CampusTrade CU2 - BUAP",
-  "short_name": "CampusTrade",
+  "name": "LoboTrade CU2 - BUAP",
+  "short_name": "LoboTrade",
   "description": "Plataforma de Microemprendimiento y Entregas Seguras en el Campus BUAP CU2",
   "start_url": "./index.html",
   "scope": "./",
