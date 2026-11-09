@@ -8,7 +8,7 @@ window.CATEGORIES = [
   { id: 'comida', name: 'Comida y Desayunos', icon: 'fa-utensils' },
   { id: 'bebidas', name: 'Bebidas Frías & Café', icon: 'fa-coffee' },
   { id: 'electronica', name: 'Cables & Tech', icon: 'fa-bolt' },
-  { id: 'papeleria', name: 'Papelería & Exámenes', icon: 'fa-pencil-ruler' }
+  { id: 'papeleria', name: 'Papelería & Útiles', icon: 'fa-pencil-ruler' }
 ];
 
 // Almacén inicial vacío (sin productos ni pedidos ficticios)
